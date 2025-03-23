@@ -5,13 +5,20 @@
   <title>🚀 CyberNeon IDE 🚀</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    body, html { height: 100%; overflow: hidden; margin: 0; }
-
+    /* Reset básico */
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    /* Contenedor principal con 3 columnas */
     .container {
       display: flex;
       height: 100vh;
+      width: 100vw;
     }
-
+    /* Panel izquierdo (gestión de archivos) */
     .sidebar {
       width: 280px;
       background-color: #21252B;
@@ -20,14 +27,12 @@
       padding: 10px;
       box-sizing: border-box;
     }
-
     .sidebar-buttons {
       display: flex;
       flex-direction: column;
       gap: 8px;
       margin-bottom: 10px;
     }
-
     .sidebar-buttons button {
       padding: 8px;
       border: none;
@@ -38,31 +43,67 @@
       font-weight: 500;
       transition: opacity 0.3s ease;
     }
-
     .sidebar-buttons button:hover {
       opacity: 0.8;
     }
-
     #file-tree {
       flex: 1;
-      overflow-y: auto; /* scroll necesario */
+      overflow-y: auto;
       padding-right: 4px;
     }
-
-    /* Barra ajustable */
+    /* Divisor ajustable entre sidebar y editor */
     .divider {
       width: 5px;
       cursor: ew-resize;
       background-color: #14161A;
     }
-
+    /* Editor central */
     #editorContainer {
       flex: 1;
+      background-color: #1A1D24;
+    }
+    /* Nuevo divisor entre editor y panel de voz */
+    .divider-right {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #14161A;
+    }
+    /* Panel derecho: Reconocimiento de voz */
+    .voice-panel {
+      width: 250px;
+      background-color: #282C34;
+      color: #FFF;
+      padding: 10px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .voice-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .voice-icon {
+      font-size: 24px;
+    }
+    .voice-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .voice-content {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 8px;
+      background-color: #1E2127;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Panel izquierdo: gestión de archivos -->
     <div class="sidebar">
       <div class="sidebar-buttons">
         <button id="open-folder">📂 Abrir Proyecto</button>
@@ -72,53 +113,106 @@
       <ul id="file-tree"></ul>
     </div>
 
+    <!-- Divisor ajustable izquierdo -->
     <div class="divider" id="divider"></div>
 
+    <!-- Editor central -->
     <div id="editorContainer"></div>
+
+    <!-- Divisor ajustable derecho -->
+    <div class="divider-right" id="divider-right"></div>
+
+    <!-- Panel derecho: Reconocimiento de voz -->
+    <div class="voice-panel" id="voicePanel">
+      <div class="voice-header">
+        <span class="voice-icon">🎤</span>
+        <span class="voice-title">Voz</span>
+      </div>
+      <div class="voice-content">
+        <p>Estado: Inactivo</p>
+        <p>Simulación de lógica de reconocimiento de voz.</p>
+        <p>(Aquí se mostrarán comandos y resultados de voz)</p>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="./renderer.js"></script>
 
+  <!-- Script para el divisor izquierdo (sidebar/editor) -->
   <script>
     const divider = document.getElementById('divider');
     const sidebar = document.querySelector('.sidebar');
     const editorContainer = document.getElementById('editorContainer');
     let isDragging = false;
-  
+
     divider.addEventListener('mousedown', function(e) {
       isDragging = true;
       document.body.style.userSelect = 'none';
     });
-  
+
     document.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
-  
       const containerRect = document.querySelector('.container').getBoundingClientRect();
       const sidebarMinWidth = 180;
-      const sidebarMaxWidth = containerRect.width - 200; // asegura mínimo 200px para editor
-  
+      const sidebarMaxWidth = containerRect.width - 300; // Asegura espacio para editor y panel de voz
       let newSidebarWidth = e.clientX - containerRect.left;
-  
       if (newSidebarWidth < sidebarMinWidth) newSidebarWidth = sidebarMinWidth;
       if (newSidebarWidth > sidebarMaxWidth) newSidebarWidth = sidebarMaxWidth;
-  
       sidebar.style.width = newSidebarWidth + 'px';
-      editorContainer.style.width = (containerRect.width - newSidebarWidth - divider.offsetWidth) + 'px';
-  
-      // Actualiza el layout del editor Monaco (importante)
+      // Actualizar editor: calculamos el ancho disponible
+      const editorAndVoiceWidth = containerRect.width - newSidebarWidth - divider.offsetWidth;
+      // Suponiendo que el panel de voz tendrá un ancho fijo (inicialmente 250px):
+      const voicePanelWidth = document.getElementById('voicePanel').offsetWidth;
+      editorContainer.style.width = (editorAndVoiceWidth - voicePanelWidth - document.getElementById('divider-right').offsetWidth) + 'px';
       if (typeof editor !== 'undefined') {
         editor.layout();
       }
     });
-  
+
     document.addEventListener('mouseup', function() {
       isDragging = false;
       document.body.style.userSelect = '';
     });
   </script>
-  
 
+  <!-- Script para el divisor derecho (editor/voz) -->
+  <script>
+    const dividerRight = document.getElementById('divider-right');
+    const voicePanel = document.getElementById('voicePanel');
+    let isDraggingRight = false;
 
+    dividerRight.addEventListener('mousedown', function(e) {
+      isDraggingRight = true;
+      document.body.style.userSelect = 'none';
+    });
 
+    document.addEventListener('mousemove', function(e) {
+      if (!isDraggingRight) return;
+      const containerRect = document.querySelector('.container').getBoundingClientRect();
+      // Calcula el nuevo ancho para el voicePanel
+      let newVoiceWidth = containerRect.right - e.clientX;
+      const minVoiceWidth = 200;
+      const maxVoiceWidth = 400;
+      if (newVoiceWidth < minVoiceWidth) newVoiceWidth = minVoiceWidth;
+      if (newVoiceWidth > maxVoiceWidth) newVoiceWidth = maxVoiceWidth;
+      voicePanel.style.width = newVoiceWidth + 'px';
+
+      // Actualizar editor: recalcular el ancho disponible
+      const sidebarWidth = sidebar.offsetWidth;
+      const leftDividerWidth = divider.offsetWidth;
+      const rightDividerWidth = dividerRight.offsetWidth;
+      const voiceWidth = newVoiceWidth;
+      const availableWidth = containerRect.width - sidebarWidth - leftDividerWidth - rightDividerWidth - voiceWidth;
+      editorContainer.style.width = availableWidth + 'px';
+      if (typeof editor !== 'undefined') {
+        editor.layout();
+      }
+    });
+
+    document.addEventListener('mouseup', function() {
+      isDraggingRight = false;
+      document.body.style.userSelect = '';
+    });
+  </script>
 </body>
 </html>
