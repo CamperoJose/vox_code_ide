@@ -1,0 +1,131 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #1e1e1e;
+    color: #cccccc;
+    height: 100vh;
+  }
+  
+  .container {
+    display: flex;
+    height: 100%;
+  }
+  
+  .sidebar {
+    background-color: #21252B;
+    color: #ABB2BF;
+  }
+  
+  .sidebar button {
+    background: linear-gradient(135deg, #FF3CAC, #562B7C, #2B86C5);
+    color: #FFF;
+    border-radius: 8px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .sidebar button:hover {
+    opacity: 0.85;
+}
+  
+  .sidebar ul {
+    list-style: none;
+    padding-left: 10px;
+    margin: 10px 0;
+  }
+  
+  .sidebar li {
+    padding: 2px 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    user-select: none;
+  }
+  
+  .sidebar li:hover {
+    background-color: #282C34;
+}
+  
+  .sidebar li.active {
+    background-color: #FF3CAC;
+    color: white;
+  }
+  
+  .arrow {
+    color: #FF9A5C;
+    display: inline-block;
+    width: 16px;
+    transition: transform 0.1s ease;
+  }
+
+  .sidebar .arrow {
+    width: 16px;
+    display: inline-block;
+    text-align: center;
+    transition: transform 0.1s ease;
+  }
+  
+  
+  .sidebar .icon {
+    margin-right: 5px;
+  }
+  
+  .sidebar .file-name {
+    margin-left: 2px;
+  }
+  
+  
+  .arrow.collapsed {
+    transform: rotate(0deg);
+  }
+  
+
+  .icon {
+    color: #00E5FF;
+    width: 20px;
+  }
+  
+  .file-name {
+    padding-left: 4px;
+  }
+  
+  ul.collapsed {
+    display: none;
+  }
+  
+  #editorContainer {
+    flex-grow: 1;
+  }
+  
+  /* Scrollbar personalizado para sidebar */
+#file-tree::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #file-tree::-webkit-scrollbar-track {
+    background: #1A1D24;
+  }
+  
+  #file-tree::-webkit-scrollbar-thumb {
+    background: #FF3CAC;
+    border-radius: 10px;
+  }
+  
+  #file-tree::-webkit-scrollbar-thumb:hover {
+    background: #2B86C5;
+  }
+  
+  /* mejorar selección en sidebar */
+  .sidebar li:hover {
+    background-color: #282C34;
+    color: #FFF;
+  }
+  
+  .sidebar li.active {
+    background-color: #FF3CAC;
+    color: white;
+  }
+  

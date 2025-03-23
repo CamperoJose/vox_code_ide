@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🚀 CyberNeon IDE 🚀</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body, html { height: 100%; overflow: hidden; margin: 0; }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background-color: #21252B;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .sidebar-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-buttons button {
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #FF3CAC, #562B7C, #2B86C5);
+      color: white;
+      font-weight: 500;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-buttons button:hover {
+      opacity: 0.8;
+    }
+
+    #file-tree {
+      flex: 1;
+      overflow-y: auto; /* scroll necesario */
+      padding-right: 4px;
+    }
+
+    /* Barra ajustable */
+    .divider {
+      width: 5px;
+      cursor: ew-resize;
+      background-color: #14161A;
+    }
+
+    #editorContainer {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-buttons">
+        <button id="open-folder">📂 Abrir Proyecto</button>
+        <button id="new-file">📄 Nuevo Archivo</button>
+        <button id="new-dir">📁 Nueva Carpeta</button>
+      </div>
+      <ul id="file-tree"></ul>
+    </div>
+
+    <div class="divider" id="divider"></div>
+
+    <div id="editorContainer"></div>
+  </div>
+
+  <script type="module" src="./renderer.js"></script>
+
+  <script>
+    const divider = document.getElementById('divider');
+    const sidebar = document.querySelector('.sidebar');
+    const editorContainer = document.getElementById('editorContainer');
+    let isDragging = false;
+  
+    divider.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      document.body.style.userSelect = 'none';
+    });
+  
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+  
+      const containerRect = document.querySelector('.container').getBoundingClientRect();
+      const sidebarMinWidth = 180;
+      const sidebarMaxWidth = containerRect.width - 200; // asegura mínimo 200px para editor
+  
+      let newSidebarWidth = e.clientX - containerRect.left;
+  
+      if (newSidebarWidth < sidebarMinWidth) newSidebarWidth = sidebarMinWidth;
+      if (newSidebarWidth > sidebarMaxWidth) newSidebarWidth = sidebarMaxWidth;
+  
+      sidebar.style.width = newSidebarWidth + 'px';
+      editorContainer.style.width = (containerRect.width - newSidebarWidth - divider.offsetWidth) + 'px';
+  
+      // Actualiza el layout del editor Monaco (importante)
+      if (typeof editor !== 'undefined') {
+        editor.layout();
+      }
+    });
+  
+    document.addEventListener('mouseup', function() {
+      isDragging = false;
+      document.body.style.userSelect = '';
+    });
+  </script>
+  
+
+
+
+</body>
+</html>
