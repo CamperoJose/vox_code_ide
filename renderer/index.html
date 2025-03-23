@@ -6,19 +6,19 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     /* Reset básico */
-    body, html {
+    html, body {
       height: 100%;
       overflow: hidden;
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
     }
-    /* Contenedor principal con 3 columnas */
+    /* Contenedor principal en fila: Sidebar + Área central + Voz */
     .container {
       display: flex;
       height: 100vh;
       width: 100vw;
     }
-    /* Panel izquierdo (gestión de archivos) */
+    /* Sidebar */
     .sidebar {
       width: 280px;
       background-color: #21252B;
@@ -51,24 +51,61 @@
       overflow-y: auto;
       padding-right: 4px;
     }
-    /* Divisor ajustable entre sidebar y editor */
-    .divider {
+    /* Divisores verticales */
+    .divider, .divider-right {
       width: 5px;
-      cursor: ew-resize;
       background-color: #14161A;
+      cursor: ew-resize;
     }
-    /* Editor central */
+    /* Área central: contenedor de editor y terminal */
+    #central-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: #1A1D24;
+      position: relative;
+    }
+    /* Editor de código: se usa el contenedor editorContainer */
     #editorContainer {
       flex: 1;
+      overflow: auto;
+      padding: 10px;
+      box-sizing: border-box;
       background-color: #1A1D24;
     }
-    /* Nuevo divisor entre editor y panel de voz */
-    .divider-right {
-      width: 5px;
-      cursor: ew-resize;
+    /* Divisor horizontal: fijo, con botón de toggle */
+    .horizontal-divider {
+      height: 5px;
       background-color: #14161A;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
-    /* Panel derecho: Reconocimiento de voz */
+    /* Botón de toggle */
+    .toggle-btn {
+      position: absolute;
+      top: -12px;
+      right: 10px;
+      background-color: #2B86C5;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    /* Área terminal: fija 200px, con scroll */
+    #terminal-area {
+      height: 200px;
+      overflow: auto;
+      border-top: 1px solid #333;
+      transition: height 0.3s;
+    }
+    /* Panel derecho: Voz */
     .voice-panel {
       width: 250px;
       background-color: #282C34;
@@ -103,7 +140,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Panel izquierdo: gestión de archivos -->
+    <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-buttons">
         <button id="open-folder">📂 Abrir Proyecto</button>
@@ -113,16 +150,35 @@
       <ul id="file-tree"></ul>
     </div>
 
-    <!-- Divisor ajustable izquierdo -->
+    <!-- Divisor vertical entre sidebar y área central -->
     <div class="divider" id="divider"></div>
 
-    <!-- Editor central -->
-    <div id="editorContainer"></div>
+    <!-- Área central: editor y terminal -->
+    <div id="central-content">
+      <!-- Editor de código -->
+      <div id="editorContainer">
+        <!-- Aquí se integraría el editor (por ejemplo, Monaco o CodeMirror) -->
+      </div>
+      <!-- Divisor horizontal con botón de toggle -->
+      <div class="horizontal-divider" id="horizontal-divider">
+        <button class="toggle-btn" id="toggle-terminal">▼</button>
+      </div>
+      <!-- Área terminal embebida mediante webview -->
+      <div id="terminal-area">
+        <webview id="terminalView" 
+                 src="terminal/index.html" 
+                 style="width:100%; height:100%;" 
+                 allowpopups
+                 nodeintegration="false"
+                 preload="terminal/terminal-preload.js">
+        </webview>
+      </div>
+    </div>
 
-    <!-- Divisor ajustable derecho -->
+    <!-- Divisor vertical entre área central y panel de voz -->
     <div class="divider-right" id="divider-right"></div>
 
-    <!-- Panel derecho: Reconocimiento de voz -->
+    <!-- Panel derecho: Voz -->
     <div class="voice-panel" id="voicePanel">
       <div class="voice-header">
         <span class="voice-icon">🎤</span>
@@ -138,80 +194,79 @@
 
   <script type="module" src="./renderer.js"></script>
 
-  <!-- Script para el divisor izquierdo (sidebar/editor) -->
+  <!-- Script para divisor vertical entre sidebar y área central -->
   <script>
     const divider = document.getElementById('divider');
     const sidebar = document.querySelector('.sidebar');
-    const editorContainer = document.getElementById('editorContainer');
+    const centralContent = document.getElementById('central-content');
     let isDragging = false;
-
     divider.addEventListener('mousedown', function(e) {
       isDragging = true;
       document.body.style.userSelect = 'none';
     });
-
     document.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
       const containerRect = document.querySelector('.container').getBoundingClientRect();
       const sidebarMinWidth = 180;
-      const sidebarMaxWidth = containerRect.width - 300; // Asegura espacio para editor y panel de voz
+      const sidebarMaxWidth = containerRect.width - 300;
       let newSidebarWidth = e.clientX - containerRect.left;
       if (newSidebarWidth < sidebarMinWidth) newSidebarWidth = sidebarMinWidth;
       if (newSidebarWidth > sidebarMaxWidth) newSidebarWidth = sidebarMaxWidth;
       sidebar.style.width = newSidebarWidth + 'px';
-      // Actualizar editor: calculamos el ancho disponible
-      const editorAndVoiceWidth = containerRect.width - newSidebarWidth - divider.offsetWidth;
-      // Suponiendo que el panel de voz tendrá un ancho fijo (inicialmente 250px):
-      const voicePanelWidth = document.getElementById('voicePanel').offsetWidth;
-      editorContainer.style.width = (editorAndVoiceWidth - voicePanelWidth - document.getElementById('divider-right').offsetWidth) + 'px';
-      if (typeof editor !== 'undefined') {
-        editor.layout();
-      }
+      // Ajustar ancho del área central
+      centralContent.style.width = (containerRect.width - newSidebarWidth - divider.offsetWidth - document.getElementById('divider-right').offsetWidth - document.getElementById('voicePanel').offsetWidth) + 'px';
     });
-
     document.addEventListener('mouseup', function() {
       isDragging = false;
       document.body.style.userSelect = '';
     });
   </script>
 
-  <!-- Script para el divisor derecho (editor/voz) -->
+  <!-- Script para divisor vertical entre área central y panel de voz -->
   <script>
     const dividerRight = document.getElementById('divider-right');
     const voicePanel = document.getElementById('voicePanel');
     let isDraggingRight = false;
-
     dividerRight.addEventListener('mousedown', function(e) {
       isDraggingRight = true;
       document.body.style.userSelect = 'none';
     });
-
     document.addEventListener('mousemove', function(e) {
       if (!isDraggingRight) return;
       const containerRect = document.querySelector('.container').getBoundingClientRect();
-      // Calcula el nuevo ancho para el voicePanel
       let newVoiceWidth = containerRect.right - e.clientX;
       const minVoiceWidth = 200;
       const maxVoiceWidth = 400;
       if (newVoiceWidth < minVoiceWidth) newVoiceWidth = minVoiceWidth;
       if (newVoiceWidth > maxVoiceWidth) newVoiceWidth = maxVoiceWidth;
       voicePanel.style.width = newVoiceWidth + 'px';
-
-      // Actualizar editor: recalcular el ancho disponible
+      // Recalcular ancho del área central
       const sidebarWidth = sidebar.offsetWidth;
       const leftDividerWidth = divider.offsetWidth;
       const rightDividerWidth = dividerRight.offsetWidth;
-      const voiceWidth = newVoiceWidth;
-      const availableWidth = containerRect.width - sidebarWidth - leftDividerWidth - rightDividerWidth - voiceWidth;
-      editorContainer.style.width = availableWidth + 'px';
-      if (typeof editor !== 'undefined') {
-        editor.layout();
-      }
+      const availableWidth = containerRect.width - sidebarWidth - leftDividerWidth - rightDividerWidth - newVoiceWidth;
+      centralContent.style.width = availableWidth + 'px';
     });
-
     document.addEventListener('mouseup', function() {
       isDraggingRight = false;
       document.body.style.userSelect = '';
+    });
+  </script>
+
+  <!-- Script para el botón de toggle de la terminal -->
+  <script>
+    const toggleBtn = document.getElementById('toggle-terminal');
+    const terminalArea = document.getElementById('terminal-area');
+    let terminalVisible = true;
+    toggleBtn.addEventListener('click', function() {
+      if (terminalVisible) {
+        terminalArea.style.display = 'none';
+        toggleBtn.textContent = '▲';
+      } else {
+        terminalArea.style.display = 'block';
+        toggleBtn.textContent = '▼';
+      }
+      terminalVisible = !terminalVisible;
     });
   </script>
 </body>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>Terminal con xterm.js</title>
+    <!-- Incluye los estilos de xterm -->
+    <link rel="stylesheet" href="../../node_modules/xterm/css/xterm.css">
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      /* Se agrega padding interno para dar margen */
+      #terminal-container {
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="terminal-container"></div>
+
+    <!-- Carga las versiones de xterm y del addon desde la carpeta lib -->
+    <script src="../../node_modules/xterm/lib/xterm.js"></script>
+    <script src="../../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+
+    <script>
+      // Se asume que el preload expone window.terminalAPI con las funciones necesarias (sendKeystroke y onIncomingData)
+      const { sendKeystroke, onIncomingData } = window.terminalAPI;
+
+      // Terminal se expone globalmente a través de xterm.js como window.Terminal
+      const term = new Terminal({
+        cursorBlink: true,
+        fontFamily: "monospace",
+        fontSize: 14,
+        theme: {
+          background: "#1e1e1e",
+          foreground: "#d4d4d4",
+          cursor: "#D300F3FF",
+
+        }
+      });
+
+      console.log("FitAddon global:", window.FitAddon);
+
+      // Crea la instancia del addon; si el constructor está en window.FitAddon.FitAddon, se usa esa ruta
+      const fitAddon = new window.FitAddon.FitAddon();
+      term.loadAddon(fitAddon);
+
+      // Monta la terminal en el contenedor
+      const container = document.getElementById("terminal-container");
+      term.open(container);
+
+      // Ajusta la terminal al tamaño del contenedor (considerando el padding)
+      fitAddon.fit();
+
+      // Envía los datos del teclado al proceso principal
+      term.onData((data) => {
+        sendKeystroke(data);
+      });
+
+      // Recibe datos del proceso pty y los escribe en la terminal
+      onIncomingData((data) => {
+        term.write(data);
+      });
+
+      // Re-ajusta el tamaño de la terminal al cambiar el tamaño de la ventana
+      window.addEventListener("resize", () => {
+        fitAddon.fit();
+      });
+    </script>
+  </body>
+</html>
