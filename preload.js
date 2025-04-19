@@ -8,7 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveFile: (path, content) => ipcRenderer.invoke('file:save', path, content),
     createFile: (path) => ipcRenderer.invoke('file:create', path),
     createDirectory: (path) => ipcRenderer.invoke('directory:create', path),
-    prompt: (message) => ipcRenderer.invoke('prompt:show', message)
+    prompt: (message) => ipcRenderer.invoke('prompt:show', message),
+
+    sendToTerminal: (data) => ipcRenderer.send('terminal.keystroke', data)
 
   });
   
