@@ -35,6 +35,7 @@ if (!container) {
   console.error('[Editor] Error: No se encontró el contenedor "editorContainer".');
 }
 
+// Crear la instancia de Monaco Editor
 export const editor = monaco.editor.create(container, {
   value: '// 🚀 CyberNeon IDE 🚀\n\n// Abre un archivo para empezar a programar...',
   language: 'javascript',
@@ -54,6 +55,9 @@ export const editor = monaco.editor.create(container, {
   }
 });
 console.log('[Editor] Editor Monaco creado con tema "cyberNeon".');
+
+// Exponer monaco para poder importarlo desde otros módulos
+export { monaco };
 
 // Variable global para la ruta del archivo actualmente abierto
 let currentFilePath = null;
