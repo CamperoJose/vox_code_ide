@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnPath.addEventListener('click', () => {
-    window.electronAPI.sendToTerminal('pmd\r');
+    window.electronAPI.sendToTerminal('pwd\r');
   });
 
   // ————— Editor —————

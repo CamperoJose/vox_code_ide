@@ -22,7 +22,8 @@ function createIDEWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       webviewTag: true // Habilita el uso de <webview>
-    }
+    },
+    icon: path.join(__dirname, 'icon.png'),
   });
 
   ideWindow.loadFile(path.join(__dirname, 'renderer/index.html'));
@@ -34,12 +35,20 @@ function createIDEWindow() {
   ideWindow.webContents.on('did-attach-webview', (event, attachedWebContents) => {
     terminalWebContents = attachedWebContents;
     console.log('Terminal webContents attached:', terminalWebContents.id);
-
   });
-  
 }
 
-app.on("ready", () => {
+app.whenReady().then(() => {
+  // En Windows, para que las notificaciones y jump lists usen tu icono
+  if (process.platform === 'win32') {
+    app.setAppUserModelId(process.execPath);
+  }
+
+  // En macOS, cambia el icono del dock en caliente
+  if (process.platform === 'darwin') {
+    app.dock.setIcon(path.join(__dirname, 'icon.png'));
+  }
+
   createIDEWindow();
 });
 

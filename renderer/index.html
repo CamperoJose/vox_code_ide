@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🚀 CyberNeon IDE 🚀</title>
+  <title>VoxCode</title>
+  <header class="app-header">
+    <img src="../icon.png" alt="VoxCode Logo" class="app-icon">
+    <h1 class="app-title">VoxCode</h1>
+  </header>
   <link rel="stylesheet" href="styles.css">
   <style>
     /* Reset básico */
@@ -136,6 +140,25 @@
       padding: 8px;
       background-color: #1E2127;
     }
+    .app-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #282C34; /* mismo tono que tu sidebar o el que prefieras */
+  }
+
+  .app-icon {
+    width: 32px;   /* tamaño del icono */
+    height: 32px;
+    margin-right: 8px; /* espacio entre icono y texto */
+  }
+
+  .app-title {
+    margin: 0;
+    color: #FFF;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
   </style>
 </head>
 <body>
