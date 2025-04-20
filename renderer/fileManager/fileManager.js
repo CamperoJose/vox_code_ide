@@ -18,10 +18,9 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('[Folder] Archivos obtenidos:', files);
     if (files) {
       fileTree.innerHTML = '';
-      renderFileTree(files, fileTree);
+      const tree = compressTree(files);
+      renderFileTree(tree, fileTree);
       console.log('[Folder] Árbol de archivos renderizado.');
-    } else {
-      console.log('[Folder] No se obtuvo información de archivos.');
     }
   };
 
@@ -32,7 +31,8 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('[Init] Últimos archivos del proyecto:', lastFiles);
     if (lastFiles) {
       fileTree.innerHTML = '';
-      renderFileTree(lastFiles, fileTree);
+      const tree = compressTree(lastFiles);
+      renderFileTree(tree, fileTree);
       console.log('[Init] Árbol de archivos actualizado con el último proyecto.');
     } else {
       console.log('[Init] No hay proyecto previo almacenado.');
@@ -49,18 +49,16 @@ async function createNewFile() {
   console.log('[CreateFile] Solicitud para crear nuevo archivo iniciada.');
   const name = await window.electronAPI.prompt("Nombre del nuevo archivo:");
   console.log('[CreateFile] Respuesta del prompt:', name);
-  if (!name) {
-    console.log('[CreateFile] Cancelado por el usuario (nombre vacío).');
-    return;
-  }
+  if (!name) return console.log('[CreateFile] Cancelado por el usuario (nombre vacío).');
+
   const currentFolder = await window.electronAPI.getLastProjectPath();
   console.log('[CreateFile] Carpeta actual del proyecto:', currentFolder);
   if (currentFolder) {
-    const filePath = currentFolder + '/' + name;
+    const filePath = `${currentFolder}/${name}`;
     console.log('[CreateFile] Ruta del nuevo archivo:', filePath);
     await window.electronAPI.createFile(filePath);
     console.log('[CreateFile] Archivo creado exitosamente.');
-    refreshFileTree();
+    await refreshFileTree();
   } else {
     console.log('[CreateFile] No se pudo obtener la carpeta actual del proyecto.');
   }
@@ -71,18 +69,16 @@ async function createNewDir() {
   console.log('[CreateDir] Solicitud para crear nueva carpeta iniciada.');
   const name = await window.electronAPI.prompt("Nombre de la nueva carpeta:");
   console.log('[CreateDir] Respuesta del prompt:', name);
-  if (!name) {
-    console.log('[CreateDir] Cancelado por el usuario (nombre vacío).');
-    return;
-  }
+  if (!name) return console.log('[CreateDir] Cancelado por el usuario (nombre vacío).');
+
   const currentFolder = await window.electronAPI.getLastProjectPath();
   console.log('[CreateDir] Carpeta actual del proyecto:', currentFolder);
   if (currentFolder) {
-    const dirPath = currentFolder + '/' + name;
+    const dirPath = `${currentFolder}/${name}`;
     console.log('[CreateDir] Ruta de la nueva carpeta:', dirPath);
     await window.electronAPI.createDirectory(dirPath);
     console.log('[CreateDir] Carpeta creada exitosamente.');
-    refreshFileTree();
+    await refreshFileTree();
   } else {
     console.log('[CreateDir] No se pudo obtener la carpeta actual del proyecto.');
   }
@@ -96,11 +92,42 @@ async function refreshFileTree() {
   console.log('[Refresh] Archivos obtenidos para refrescar:', files);
   if (files) {
     fileTree.innerHTML = '';
-    renderFileTree(files, fileTree);
+    const tree = compressTree(files);
+    renderFileTree(tree, fileTree);
     console.log('[Refresh] Árbol de archivos refrescado.');
   } else {
     console.log('[Refresh] No se obtuvieron archivos para refrescar.');
   }
+}
+
+/**
+ * Comprime secuencias de carpetas únicas en una sola rama.
+ * - Si un directorio tiene exactamente un único hijo que también es directorio,
+ *   concatena sus nombres con "/" y avanza hasta que haya ramificaciones o archivos.
+ */
+function compressTree(nodes) {
+  return nodes.map(node => {
+    if (!node.isDirectory) return node;
+
+    let name = node.name;
+    let children = node.children;
+
+    // Mientras haya un único hijo y sea carpeta, seguimos comprimiendo
+    while (
+      children.length === 1 &&
+      children[0].isDirectory
+    ) {
+      name = `${name}/${children[0].name}`;
+      children = children[0].children;
+    }
+
+    // Aplicar recursivamente a los hijos
+    return {
+      ...node,
+      name,
+      children: compressTree(children)
+    };
+  });
 }
 
 // Función para renderizar el árbol de archivos de forma recursiva
@@ -111,12 +138,12 @@ function renderFileTree(files, parent) {
     const li = document.createElement('li');
     li.classList.add(file.isDirectory ? 'folder' : 'file');
 
-    // Flechas estilizadas Unicode (moderno y recto)
+    // Flechas estilizadas Unicode
     const arrow = document.createElement('span');
     arrow.textContent = file.isDirectory ? '▸' : '';
     arrow.classList.add('arrow');
 
-    // Iconos modernos para archivos y carpetas
+    // Iconos para archivos y carpetas
     const icon = document.createElement('span');
     icon.textContent = file.isDirectory ? '🗂️' : '📝';
     icon.classList.add('icon');
@@ -144,6 +171,7 @@ function renderFileTree(files, parent) {
       };
 
       renderFileTree(file.children, nestedUl);
+
     } else {
       li.onclick = async (e) => {
         e.stopPropagation();
