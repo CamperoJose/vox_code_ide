@@ -27,3 +27,99 @@
     </div>
   </div>
   
+<style>
+    /* ------------------ Voice Panel Styling ------------------ */
+
+.voice-panel {
+  width: 260px;
+  background: linear-gradient(145deg, #2c2f33, #23252a);
+  border-left: 2px solid #3a3f4b;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.voice-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3a3f4b;
+}
+
+.voice-icon {
+  font-size: 1.8rem;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+.voice-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+/* Pulsing mic animation */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); color: #62dafb; }
+  50%      { transform: scale(1.1); color: #4bc0eb; }
+}
+
+.voice-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.voice-controls button {
+  flex: 1 1 48%;
+  padding: 8px 12px;
+  background: #3a3f4b;
+  color: #e0e0e0;
+  border: 1px solid #4a4f59;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.voice-controls button:hover {
+  background: #4a4f59;
+  transform: translateY(-1px);
+}
+
+.voice-controls button:active {
+  background: #2a2d31;
+  transform: translateY(1px);
+}
+
+/* If you have a scrollable list inside voice-content */
+.voice-content {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #3a3f4b;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #1f2226;
+}
+
+/* Custom scrollbar for voice-content */
+.voice-content::-webkit-scrollbar {
+  width: 8px;
+}
+.voice-content::-webkit-scrollbar-track {
+  background: #23252a;
+  border-radius: 4px;
+}
+.voice-content::-webkit-scrollbar-thumb {
+  background: #4a4f59;
+  border-radius: 4px;
+}
+.voice-content::-webkit-scrollbar-thumb:hover {
+  background: #5a5f69;
+}
+
+    
+</style>

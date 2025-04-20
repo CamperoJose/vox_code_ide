@@ -1,5 +1,3 @@
-// renderer.js
-
 import { editor, monaco } from './editor/editor.js';
 import './fileManager/fileManager.js';
 
