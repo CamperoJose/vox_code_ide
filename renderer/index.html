@@ -309,7 +309,7 @@
       terminalVisible = !terminalVisible;
       terminalArea.style.display = terminalVisible ? 'flex' : 'none';
       // Cambiamos flecha del botón
-      floatBtn.textContent = terminalVisible ? '▼' : '▼';
+      floatBtn.textContent = terminalVisible ? '▼' : '▲';
       // Si vuelve a mostrarse, recalibrar terminal
       if (terminalVisible) {
         terminalView.executeJavaScript(`
