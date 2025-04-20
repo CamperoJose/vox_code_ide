@@ -89,26 +89,20 @@
       cursor: pointer;
     }
     /* Botón de toggle */
-    .toggle-btn {
-      position: absolute;
-      top: -12px;
-      right: 10px;
-      background-color: #2B86C5;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
+
     /* Área terminal: fija 200px, con scroll */
     #terminal-area {
       height: 200px;
-      overflow: auto;
       border-top: 1px solid #333;
       transition: height 0.3s;
+      display: flex;       /* IMPORTANTE */
     }
+    /* El webview ahora se expande dentro del flex container */
+    #terminal-area webview {
+      flex: 1;             /* ocupa todo el espacio disponible */
+      display: block;      /* evita inline quirks */
+    }
+
     /* Panel derecho: Voz */
     .voice-panel {
       width: 250px;
@@ -159,6 +153,21 @@
     font-size: 1.25rem;
     font-weight: 600;
   }
+  #terminal-toggle-float {
+  position: absolute;
+  bottom: 60px;
+  right: 16px;
+  background-color: #1c394e;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  z-index: 100;
+}
   </style>
 </head>
 <body>
@@ -183,19 +192,24 @@
         <!-- Aquí se integraría el editor (por ejemplo, Monaco o CodeMirror) -->
       </div>
       <!-- Divisor horizontal con botón de toggle -->
-      <div class="horizontal-divider" id="horizontal-divider">
-        <button class="toggle-btn" id="toggle-terminal">▼</button>
-      </div>
+
+
       <!-- Área terminal embebida mediante webview -->
-      <div id="terminal-area">
-        <webview id="terminalView" 
-                 src="terminal/index.html" 
-                 style="width:100%; height:100%;" 
-                 allowpopups
-                 nodeintegration="false"
-                 preload="terminal/terminal-preload.js">
-        </webview>
-      </div>
+       <div>
+        <div id="terminal-area">
+          <webview
+            id="terminalView"
+            src="terminal/index.html"
+            allowpopups
+            nodeintegration="false"
+            preload="terminal/terminal-preload.js">
+          </webview>
+        </div>
+       </div>
+
+       <button id="terminal-toggle-float">▼</button>
+
+
     </div>
 
     <!-- Divisor vertical entre área central y panel de voz -->
@@ -286,18 +300,23 @@
 
   <!-- Script para el botón de toggle de la terminal -->
   <script>
-    const toggleBtn = document.getElementById('toggle-terminal');
+    const floatBtn     = document.getElementById('terminal-toggle-float');
     const terminalArea = document.getElementById('terminal-area');
+    const terminalView = document.getElementById('terminalView');
     let terminalVisible = true;
-    toggleBtn.addEventListener('click', function() {
-      if (terminalVisible) {
-        terminalArea.style.display = 'none';
-        toggleBtn.textContent = '▲';
-      } else {
-        terminalArea.style.display = 'block';
-        toggleBtn.textContent = '▼';
-      }
+  
+    floatBtn.addEventListener('click', () => {
       terminalVisible = !terminalVisible;
+      terminalArea.style.display = terminalVisible ? 'flex' : 'none';
+      // Cambiamos flecha del botón
+      floatBtn.textContent = terminalVisible ? '▼' : '▼';
+      // Si vuelve a mostrarse, recalibrar terminal
+      if (terminalVisible) {
+        terminalView.executeJavaScript(`
+          if (window.fitAddon) fitAddon.fit();
+          if (window.term)      term.scrollToBottom();
+        `);
+      }
     });
   </script>
 </body>

@@ -30,46 +30,35 @@
     <script src="../../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
 
     <script>
-      // Se asume que el preload expone window.terminalAPI con las funciones necesarias (sendKeystroke y onIncomingData)
       const { sendKeystroke, onIncomingData } = window.terminalAPI;
 
-      // Terminal se expone globalmente a través de xterm.js como window.Terminal
+      // Inicializamos la terminal y el FitAddon
       const term = new Terminal({
         cursorBlink: true,
         fontFamily: "monospace",
-        fontSize: 14,
-        theme: {
-          background: "#1e1e1e",
-          foreground: "#d4d4d4",
-          cursor: "#D300F3FF",
-
-        }
+        fontSize: 12,
+        theme: { background: "#1e1e1e", foreground: "#d4d4d4", cursor: "#D300F3FF" }
       });
-
-      console.log("FitAddon global:", window.FitAddon);
-
-      // Crea la instancia del addon; si el constructor está en window.FitAddon.FitAddon, se usa esa ruta
       const fitAddon = new window.FitAddon.FitAddon();
+
+      // Exponerlos globalmente para poder invocarlos desde el host
+      window.term = term;
+      window.fitAddon = fitAddon;
+
       term.loadAddon(fitAddon);
-
-      // Monta la terminal en el contenedor
-      const container = document.getElementById("terminal-container");
-      term.open(container);
-
-      // Ajusta la terminal al tamaño del contenedor (considerando el padding)
+      term.open(document.getElementById("terminal-container"));
       fitAddon.fit();
 
-      // Envía los datos del teclado al proceso principal
-      term.onData((data) => {
-        sendKeystroke(data);
-      });
+      // Envío de teclas al proceso
+      term.onData(data => sendKeystroke(data));
 
-      // Recibe datos del proceso pty y los escribe en la terminal
-      onIncomingData((data) => {
+      // Cada vez que llega output: escribimos, ajustamos scroll y fit (opcional)
+      onIncomingData(data => {
         term.write(data);
+        term.scrollToBottom();
       });
 
-      // Re-ajusta el tamaño de la terminal al cambiar el tamaño de la ventana
+      // Al cambiar el tamaño de la ventana de la webview
       window.addEventListener("resize", () => {
         fitAddon.fit();
       });
