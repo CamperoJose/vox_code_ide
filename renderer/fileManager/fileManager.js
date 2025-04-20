@@ -1,7 +1,11 @@
 import * as monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/+esm';
 import { editor, setCurrentFilePath } from '../editor/editor.js';
 
-// Ejecutar todo cuando el DOM esté completamente cargado
+// Ruta de la carpeta actualmente seleccionada
+let selectedDirPath = null;
+// Conjunto de rutas de carpetas expandidas
+const expandedPaths = new Set();
+
 window.addEventListener('DOMContentLoaded', () => {
   const openFolderBtn = document.getElementById('open-folder');
   const fileTree = document.getElementById('file-tree');
@@ -15,9 +19,10 @@ window.addEventListener('DOMContentLoaded', () => {
   openFolderBtn.onclick = async () => {
     console.log('[Folder] Botón "Abrir Proyecto" presionado.');
     const files = await window.electronAPI.openFolder();
-    console.log('[Folder] Archivos obtenidos:', files);
     if (files) {
       fileTree.innerHTML = '';
+      selectedDirPath = null;       // reset selección
+      expandedPaths.clear();        // limpiar expansiones previas
       const tree = compressTree(files);
       renderFileTree(tree, fileTree);
       console.log('[Folder] Árbol de archivos renderizado.');
@@ -28,14 +33,13 @@ window.addEventListener('DOMContentLoaded', () => {
   (async () => {
     console.log('[Init] Iniciando carga del último proyecto abierto...');
     const lastFiles = await window.electronAPI.getLastProject();
-    console.log('[Init] Últimos archivos del proyecto:', lastFiles);
     if (lastFiles) {
       fileTree.innerHTML = '';
+      selectedDirPath = null;
+      expandedPaths.clear();
       const tree = compressTree(lastFiles);
       renderFileTree(tree, fileTree);
       console.log('[Init] Árbol de archivos actualizado con el último proyecto.');
-    } else {
-      console.log('[Init] No hay proyecto previo almacenado.');
     }
   })();
 
@@ -44,67 +48,52 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('new-dir').onclick = createNewDir;
 });
 
-// Función para crear un nuevo archivo
+// Crear un nuevo archivo en la carpeta seleccionada o raíz
 async function createNewFile() {
-  console.log('[CreateFile] Solicitud para crear nuevo archivo iniciada.');
+  console.log('[CreateFile] Iniciando...');
   const name = await window.electronAPI.prompt("Nombre del nuevo archivo:");
-  console.log('[CreateFile] Respuesta del prompt:', name);
-  if (!name) return console.log('[CreateFile] Cancelado por el usuario (nombre vacío).');
+  if (!name) return console.log('[CreateFile] Cancelado (nombre vacío).');
 
-  const currentFolder = await window.electronAPI.getLastProjectPath();
-  console.log('[CreateFile] Carpeta actual del proyecto:', currentFolder);
-  if (currentFolder) {
-    const filePath = `${currentFolder}/${name}`;
-    console.log('[CreateFile] Ruta del nuevo archivo:', filePath);
-    await window.electronAPI.createFile(filePath);
-    console.log('[CreateFile] Archivo creado exitosamente.');
-    await refreshFileTree();
-  } else {
-    console.log('[CreateFile] No se pudo obtener la carpeta actual del proyecto.');
-  }
+  let target = selectedDirPath;
+  if (!target) target = await window.electronAPI.getLastProjectPath();
+  if (!target) return console.error('[CreateFile] No hay ruta válida.');
+
+  const filePath = `${target}/${name}`;
+  console.log('[CreateFile] Ruta:', filePath);
+  await window.electronAPI.createFile(filePath);
+  await refreshFileTree();
 }
 
-// Función para crear una nueva carpeta
+// Crear nueva carpeta en la carpeta seleccionada o raíz
 async function createNewDir() {
-  console.log('[CreateDir] Solicitud para crear nueva carpeta iniciada.');
+  console.log('[CreateDir] Iniciando...');
   const name = await window.electronAPI.prompt("Nombre de la nueva carpeta:");
-  console.log('[CreateDir] Respuesta del prompt:', name);
-  if (!name) return console.log('[CreateDir] Cancelado por el usuario (nombre vacío).');
+  if (!name) return console.log('[CreateDir] Cancelado (nombre vacío).');
 
-  const currentFolder = await window.electronAPI.getLastProjectPath();
-  console.log('[CreateDir] Carpeta actual del proyecto:', currentFolder);
-  if (currentFolder) {
-    const dirPath = `${currentFolder}/${name}`;
-    console.log('[CreateDir] Ruta de la nueva carpeta:', dirPath);
-    await window.electronAPI.createDirectory(dirPath);
-    console.log('[CreateDir] Carpeta creada exitosamente.');
-    await refreshFileTree();
-  } else {
-    console.log('[CreateDir] No se pudo obtener la carpeta actual del proyecto.');
-  }
+  let target = selectedDirPath;
+  if (!target) target = await window.electronAPI.getLastProjectPath();
+  if (!target) return console.error('[CreateDir] No hay ruta válida.');
+
+  const dirPath = `${target}/${name}`;
+  console.log('[CreateDir] Ruta:', dirPath);
+  await window.electronAPI.createDirectory(dirPath);
+  await refreshFileTree();
 }
 
-// Función para refrescar el árbol de archivos
+// Refrescar el árbol sin perder expansiones
 async function refreshFileTree() {
-  console.log('[Refresh] Actualizando árbol de archivos...');
+  console.log('[Refresh] Actualizando árbol...');
   const fileTree = document.getElementById('file-tree');
   const files = await window.electronAPI.getLastProject();
-  console.log('[Refresh] Archivos obtenidos para refrescar:', files);
   if (files) {
     fileTree.innerHTML = '';
     const tree = compressTree(files);
     renderFileTree(tree, fileTree);
-    console.log('[Refresh] Árbol de archivos refrescado.');
-  } else {
-    console.log('[Refresh] No se obtuvieron archivos para refrescar.');
+    console.log('[Refresh] Árbol refrescado.');
   }
 }
 
-/**
- * Comprime secuencias de carpetas únicas en una sola rama.
- * - Si un directorio tiene exactamente un único hijo que también es directorio,
- *   concatena sus nombres con "/" y avanza hasta que haya ramificaciones o archivos.
- */
+// Compacta secuencias de carpetas únicas
 function compressTree(nodes) {
   return nodes.map(node => {
     if (!node.isDirectory) return node;
@@ -112,16 +101,11 @@ function compressTree(nodes) {
     let name = node.name;
     let children = node.children;
 
-    // Mientras haya un único hijo y sea carpeta, seguimos comprimiendo
-    while (
-      children.length === 1 &&
-      children[0].isDirectory
-    ) {
+    while (children.length === 1 && children[0].isDirectory) {
       name = `${name}/${children[0].name}`;
       children = children[0].children;
     }
 
-    // Aplicar recursivamente a los hijos
     return {
       ...node,
       name,
@@ -130,53 +114,100 @@ function compressTree(nodes) {
   });
 }
 
-// Función para renderizar el árbol de archivos de forma recursiva
+// Renderizado recursivo con preservación de expansiones
 function renderFileTree(files, parent) {
-  console.log('[RenderTree] Iniciando renderizado de árbol con', files.length, 'elementos.');
   files.forEach(file => {
-    console.log('[RenderTree] Procesando:', file.name, '-', file.isDirectory ? 'Directorio' : 'Archivo');
     const li = document.createElement('li');
     li.classList.add(file.isDirectory ? 'folder' : 'file');
+    li.dataset.path = file.path;
 
-    // Flechas estilizadas Unicode
+    // Flecha
     const arrow = document.createElement('span');
     arrow.textContent = file.isDirectory ? '▸' : '';
     arrow.classList.add('arrow');
 
-    // Iconos para archivos y carpetas
+    // Icono
     const icon = document.createElement('span');
     icon.textContent = file.isDirectory ? '🗂️' : '📝';
     icon.classList.add('icon');
 
-    const name = document.createElement('span');
-    name.textContent = file.name;
-    name.classList.add('file-name');
+    // Nombre
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = file.name;
+    nameSpan.classList.add('file-name');
 
-    li.appendChild(arrow);
-    li.appendChild(icon);
-    li.appendChild(name);
+    li.append(arrow, icon, nameSpan);
+
+    // Indicador si es carpeta seleccionada
+    if (file.isDirectory && file.path === selectedDirPath) {
+      const indicator = document.createElement('span');
+      indicator.textContent = ' •';
+      indicator.classList.add('indicator');
+      nameSpan.appendChild(indicator);
+    }
+
     parent.appendChild(li);
 
     if (file.isDirectory) {
       const nestedUl = document.createElement('ul');
-      nestedUl.classList.add('collapsed');
       parent.appendChild(nestedUl);
 
+      // Determinar estado inicial (expandido o colapsado)
+      const isExpanded = expandedPaths.has(file.path);
+      if (!isExpanded) {
+        nestedUl.classList.add('collapsed');
+        arrow.textContent = '▸';
+      } else {
+        arrow.textContent = '▾';
+      }
+
+      // Control de clic en carpeta
       li.onclick = (e) => {
         e.stopPropagation();
-        const isCollapsed = nestedUl.classList.toggle('collapsed');
-        arrow.textContent = isCollapsed ? '▸' : '▾';
-        arrow.classList.toggle('expanded', !isCollapsed);
-        console.log(`[RenderTree] ${file.name} ${isCollapsed ? 'colapsado' : 'expandido'}.`);
+
+        const nowCollapsed = nestedUl.classList.toggle('collapsed');
+        arrow.textContent = nowCollapsed ? '▸' : '▾';
+
+        // Actualizar conjunto de rutas expandidas
+        if (nowCollapsed) {
+          expandedPaths.delete(file.path);
+        } else {
+          expandedPaths.add(file.path);
+        }
+
+        // Resaltar selección
+        document.querySelectorAll('.indicator').forEach(i => i.remove());
+        selectedDirPath = file.path;
+        const indicator = document.createElement('span');
+        indicator.textContent = ' •';
+        indicator.classList.add('indicator');
+        nameSpan.appendChild(indicator);
       };
 
       renderFileTree(file.children, nestedUl);
 
     } else {
+      // Click en archivo
       li.onclick = async (e) => {
         e.stopPropagation();
+
+        // Ajustar carpeta destino (padre del archivo)
+        const parts = file.path.split('/');
+        parts.pop();
+        selectedDirPath = parts.join('/');
+
+        // Actualizar indicador visual
+        document.querySelectorAll('.indicator').forEach(i => i.remove());
+        const parentLi = document.querySelector(`li[data-path="${selectedDirPath}"]`);
+        if (parentLi) {
+          const nameEl = parentLi.querySelector('.file-name');
+          const indicator = document.createElement('span');
+          indicator.textContent = ' •';
+          indicator.classList.add('indicator');
+          nameEl.appendChild(indicator);
+        }
+
         setCurrentFilePath(file.path);
-        console.log('[RenderTree] Seleccionado archivo:', file.path);
         document.querySelectorAll('.sidebar li').forEach(el => el.classList.remove('active'));
         li.classList.add('active');
 
@@ -184,23 +215,19 @@ function renderFileTree(files, parent) {
         const language = detectLanguage(file.name);
         monaco.editor.setModelLanguage(editor.getModel(), language);
         editor.setValue(content);
-        console.log('[RenderTree] Archivo cargado en editor:', file.path);
       };
     }
   });
-  console.log('[RenderTree] Renderizado del árbol completado.');
 }
 
 function detectLanguage(filename) {
   const ext = filename.split('.').pop();
-  const languages = {
+  const map = {
     js: 'javascript', py: 'python', java: 'java', html: 'html', css: 'css',
     json: 'json', md: 'markdown', txt: 'plaintext', ts: 'typescript',
     vue: 'html', cpp: 'cpp', c: 'csharp', rb: 'ruby', php: 'php'
   };
-  const detectedLanguage = languages[ext] || 'plaintext';
-  console.log(`[DetectLanguage] Archivo: ${filename} | Extensión: ${ext} | Lenguaje detectado: ${detectedLanguage}`);
-  return detectedLanguage;
+  return map[ext] || 'plaintext';
 }
 
 export { createNewFile, createNewDir, refreshFileTree, renderFileTree, detectLanguage };
