@@ -9,13 +9,13 @@ const os = require("os");
 // Detecta el shell según el sistema operativo
 const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 
-let ideWindow;  // Ventana para el IDE
+let ideWindow;               // Ventana para el IDE
 let terminalWebContents = null; // Aquí se almacenará el webContents del webview (terminal)
 
 // Función para crear la ventana del IDE (única ventana)
 function createIDEWindow() {
   ideWindow = new BrowserWindow({
-    width: 1200,
+    width: 1800,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -35,6 +35,8 @@ function createIDEWindow() {
   ideWindow.webContents.on('did-attach-webview', (event, attachedWebContents) => {
     terminalWebContents = attachedWebContents;
     console.log('Terminal webContents attached:', terminalWebContents.id);
+    // Mostrar inmediatamente el prompt sin necesidad de presionar Enter
+    ptyProcess.write('\r');
   });
 }
 
@@ -75,13 +77,24 @@ ipcMain.handle('dialog:openFolder', async () => {
   if (!result.canceled) {
     const folderPath = result.filePaths[0];
     store.set('lastProjectPath', folderPath);
+    // Cambiar al directorio del proyecto y limpiar la terminal
+    ptyProcess.write(`cd "${folderPath}"\r`);
+    ptyProcess.write('clear\r');
     return scanFolder(folderPath);
   }
 });
 
+// Restaurar la última ruta guardada
 ipcMain.handle('project:getLast', () => {
   const lastPath = store.get('lastProjectPath');
-  return lastPath ? scanFolder(lastPath) : null;
+  if (lastPath) {
+    // Cambiar al directorio guardado y limpiar la terminal
+    ptyProcess.write(`cd "${lastPath}"\r`);
+    ptyProcess.write('clear\r');
+    return scanFolder(lastPath);
+  } else {
+    return null;
+  }
 });
 
 // Función para escanear directorios
