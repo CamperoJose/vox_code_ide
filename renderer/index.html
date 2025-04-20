@@ -243,35 +243,7 @@
     <div class="divider-right" id="divider-right"></div>
 
     <!-- Panel derecho: Voz -->
-<div class="voice-panel" id="voicePanel">
-  <div class="voice-header">
-    <span class="voice-icon">🎤</span>
-    <span class="voice-title">Voz</span>
-  </div>
-  <div class="voice-controls" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-    <!-- Terminal -->
-    <button id="insert-enter">Enter → Terminal</button>
-    <button id="show-path">Ver Ruta (pmd)</button>
-
-    <!-- File Manager -->
-    <button id="voice-open-project">Abrir Proyecto</button>
-    <button id="voice-refresh-tree">Refrescar Árbol</button>
-    <button id="voice-new-file">Nuevo Archivo</button>
-    <button id="voice-new-dir">Nueva Carpeta</button>
-    <button id="voice-open-folder">Abrir Carpeta ↓</button>
-    <button id="voice-open-file">Abrir Archivo ↓</button>
-    <button id="voice-new-file-in">Nuevo Archivo en Carpeta</button>
-    <button id="voice-new-dir-in">Nueva Carpeta en Carpeta</button>
-
-    <!-- Code Editor -->
-    <button id="btn-set-cursor">Cursor en Línea…</button>
-    <button id="btn-select-line">Seleccionar Línea…</button>
-    <button id="btn-select-range">Seleccionar Rango…</button>
-    <button id="btn-insert-frag">Insertar Fragmento…</button>
-    <button id="btn-delete-line">Eliminar Línea…</button>
-  </div>
-</div>
-
+    <div id="voicePanelContainer"></div>
   </div>
 
   <script type="module" src="./renderer.js"></script>
@@ -356,5 +328,19 @@
       }
     });
   </script>
+
+<script>
+  // Carga dinámica del panel de voz
+  fetch('voicePanel.html')
+    .then(res => res.text())
+    .then(html => {
+      const container = document.getElementById('voicePanelContainer');
+      container.innerHTML = html;
+      // Una vez inyectado, initializa los listeners del renderer
+      if (window.initializeVoicePanel) initializeVoicePanel();
+    })
+    .catch(err => console.error('Error cargando panel de voz:', err));
+</script>
+
 </body>
 </html>
