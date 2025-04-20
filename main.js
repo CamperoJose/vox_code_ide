@@ -6,6 +6,22 @@ const prompt = require('electron-prompt');
 const pty = require("node-pty");
 const os = require("os");
 
+const speech = require('@google-cloud/speech');
+const speechClient = new speech.SpeechClient();
+
+// ——————————————————————————————————
+// VERIFICACIÓN DE CREDENCIALES
+console.log('>> GOOGLE_APPLICATION_CREDENTIALS =', process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (!credsPath || !fs.existsSync(credsPath)) {
+  console.error('❌ Credenciales no encontradas en', credsPath);
+} else {
+  console.log('✅ Credenciales listas en', credsPath);
+}
+// ——————————————————————————————————
+
+
 // Detecta el shell según el sistema operativo
 const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
 
@@ -169,4 +185,22 @@ ptyProcess.on("data", (data) => {
 // Recibe datos escritos en la terminal (dentro del webview)
 ipcMain.on("terminal.keystroke", (event, key) => {
   ptyProcess.write(key);
+});
+
+ipcMain.handle('voice:transcribe', async (_, audioBuffer) => {
+  // Convierte a base64
+  const audioBytes = Buffer.from(audioBuffer).toString('base64');
+  const request = {
+    audio: { content: audioBytes },
+    config: {
+      encoding: 'LINEAR16',            // o el encoding que use tu MediaRecorder
+      sampleRateHertz: 48000,          // ajusta si grabas a otra frecuencia
+      languageCode: 'es-ES'            // o 'es-BO' si prefieres
+    }
+  };
+
+  const [response] = await speechClient.recognize(request);
+  return response.results
+    .map(r => r.alternatives[0].transcript)
+    .join('\n');
 });

@@ -10,5 +10,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createDirectory: (path) => ipcRenderer.invoke('directory:create', path),
     prompt: (message) => ipcRenderer.invoke('prompt:show', message),
     sendToTerminal: (data) => ipcRenderer.send('terminal.keystroke', data),
-    showPrompt: (message) => ipcRenderer.invoke('prompt:show', message)
+    showPrompt: (message) => ipcRenderer.invoke('prompt:show', message),
+
+    transcribeVoice: (audioBuffer) => ipcRenderer.invoke('voice:transcribe', audioBuffer)
+
   });

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "tournado-438814",
+  "private_key_id": "a4f72f9fd26f1992d653bc146e35a5f9c7d640ec",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDS9WuiQ58Wp+dC\nsc0q/5WMdHah/9HsC42GkfkThHY0k7iyRRzkSHtg4himXaJdfFXJRGaVqrODAoCR\nvBpcxVaGoVe08/42sMCDyr2qif+pE1jjc/FCk5VADUL8AMY9EfDvFBKOBT0TJ3d1\neaUvDvWZvemcPUmxJyHCM4TaiYszpGcca5GX5Q8X3cSvMOInR628V/V+2yQZ8KLM\nNRAQ/UAtxGmtQNYrPbjBRLG/7MPRZ+MmiQiAjniSpT81Qvi4fAwEGJ4IY1yPkdwR\nCYdyNXjqW9MYGXSXa9qjMApeQtIPfiI+rpcc3Vn0ZRnkhqYbuytyt5pe1dhGOxFy\nilNb2tnxAgMBAAECggEAAu3hdrlVpiziqyxo2uX9n5umYg15TrvCVVIFkV3Pfl9m\nuyL2ibzv6aJ6ESVPsdieIFNQ0Vczcug//MYN36fl0ay/2QViTEQcCDhydcHAyQo5\nu77KZNBDzEXi3jjsh8COBePTdiFgfbmYkQsFXifpBR979O1s7obKkzW/7IDoa+kg\nB4PjtmvD8l5KuDvkPOGODo9Lnor2hFRtyugcLCim1N4Ct10eBsnDF76xRlRrPV/D\nOavf5O14ukT4T6dUmdoDAia4qmkxSL8bmrInZQdZYt7F6oXtC47AMCc+pXXKrOpZ\nHkQIP74M48cJHoCPqD9cSG48TGwR8pv05BBjYdlRWQKBgQDzSXVj9Sd9VFiscszC\niVX+2o+4BwV6b/fX+mgC2ViHJJ0xGWSakhdLtY+uh+X1U5vrwU9p36LKHgUo8L++\n9+nOwM7xyowGq3SZyp4mXF9xwtrGG3G/ZOaX6gMJlXJK7t/bcY0YsfKO4lcchT7s\nsWp9hk4anrhFYTihQvfO1kSCOwKBgQDd+36NwmUhwuPf0wGHfM6JJys2wxBxCVqo\nH3jqQhoJEMsQzmvgekO3c9r8Lfw805kpERUrn/lIIOCggEDDRA5XGSp/eYVGt45A\nFGmqdUZwTkgAzpAyz43FkENImo4ZNtX32/+XPLJaB2KyG9qHHPKR2bL/2MSStBZF\na2op3tmFwwKBgEtum1dCy9uwK05MyfAHZQKAAc+tXaV40f/FRDqd6TT9xT9UAD1s\nzoxK3yHeQQ6vvch7R4QsMu04IaFwBAPSGkxgu8l8Y64tuxl0GVULjwxWvj5ug/Yz\n8stnY0m1bJqPNhl0O6tMgUiMJTZSmhAJcls5KT5XuArK+iQF/4/CH7vBAoGBAJJG\n0aQ0f1P6CxNJBm7zrV3vs6hIbiMumNDEvHcRy/pBWK7gd3Ha35iZ/anD271xajIH\nkb3HkwsWry7UlNiXliOK79hEibCJ8HEFgoPS9/G1g/kUJS12W+PeJphHUHAJFIJa\nNFjCpHxy9XSMqjnyt12o6S1y+EX76dkg6TpiIVDlAoGAIUiaifAVzbj+QvAuGprN\ntbck216fONlUIsR7MBqaJRVfx09rUIc15YL7VZr51EIiuo1TbqqfIEMDe8hwE3uS\niLYlcXocS8sbGqZmteSNjtcf2crj0T50PQNukmW7WuND6s87ysUHDeWzCFfo0obx\nT5Aid7M4UXjbJplzW8EEx34=\n-----END PRIVATE KEY-----\n",
+  "client_email": "speech-to-text-sa-224@tournado-438814.iam.gserviceaccount.com",
+  "client_id": "104508582188834583206",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/speech-to-text-sa-224%40tournado-438814.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

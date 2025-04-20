@@ -260,6 +260,38 @@ function initializeVoicePanel() {
   document.getElementById('voice-new-file-in').addEventListener('click', createFileInFolder);
   document.getElementById('voice-new-dir-in').addEventListener('click', createDirInFolder);
   window.initializeVoicePanel = initializeVoicePanel;
+
+  
+  const recordBtn = document.getElementById('voice-record');
+  const transcriptDiv = document.getElementById('voice-transcript');
+  let mediaRecorder, audioChunks = [];
+
+  recordBtn.addEventListener('click', async () => {
+    if (recordBtn.textContent === 'Grabar') {
+      // iniciar grabación
+      audioChunks = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      recordBtn.textContent = 'Detener';
+
+      mediaRecorder.addEventListener('dataavailable', e => audioChunks.push(e.data));
+      mediaRecorder.addEventListener('stop', async () => {
+        // combinar y convertir a ArrayBuffer
+        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+        const arrayBuffer = await blob.arrayBuffer();
+        // invocar al main para transcribir
+        transcriptDiv.textContent = 'Transcribiendo…';
+        const transcription = await window.electronAPI.transcribeVoice(new Uint8Array(arrayBuffer));
+        transcriptDiv.textContent = transcription || '[no se detectó voz]';
+      });
+
+    } else {
+      // detener grabación
+      mediaRecorder.stop();
+      recordBtn.textContent = 'Grabar';
+    }
+  });
 }
 
 // ==================== Initial Setup ====================

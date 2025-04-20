@@ -18,6 +18,7 @@
     "extends": "standard"
   },
   "dependencies": {
+    "@google-cloud/speech": "^7.0.1",
     "electron": "^25.0.0",
     "electron-prompt": "^1.7.0",
     "electron-store": "^10.0.1",
