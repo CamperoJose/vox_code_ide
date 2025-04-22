@@ -4,8 +4,6 @@ import './fileManager/fileManager.js';
 // ==================== Utility ====================
 /** UT001: showToast
  * Shows a transient notification toast.
- * @param {string} message - Text to display.
- * @param {boolean} [success=true] - True for success style, false for error.
  */
 function showToast(message, success = true) {
   const container = document.getElementById('toast-container');
@@ -41,13 +39,10 @@ function sendPwdToTerminal() {
 function initTerminalControls() {
   document.getElementById('insert-enter').addEventListener('click', sendEnterToTerminal);
   document.getElementById('show-path').addEventListener('click', sendPwdToTerminal);
+
 }
 
 // ==================== Code Editor ====================
-/** EM001: setCursorLine
- * Moves cursor to the start of a specified line.
- * Prompts user for line number.
- */
 async function setCursorLine() {
   const lineStr = await window.electronAPI.showPrompt('¿En qué línea colocar el cursor?');
   const line = parseInt(lineStr, 10);
@@ -57,10 +52,6 @@ async function setCursorLine() {
   }
 }
 
-/** EM002: selectLine
- * Selects an entire line in the editor.
- * Prompts user for line number.
- */
 async function selectLine() {
   const lineStr = await window.electronAPI.showPrompt('¿Qué línea quieres seleccionar?');
   const line = parseInt(lineStr, 10);
@@ -71,10 +62,6 @@ async function selectLine() {
   }
 }
 
-/** EM003: selectRange
- * Selects a range of lines in the editor.
- * Prompts user for start and end lines.
- */
 async function selectRange() {
   const fromStr = await window.electronAPI.showPrompt('Línea desde:');
   const toStr   = await window.electronAPI.showPrompt('Línea hasta:');
@@ -87,10 +74,6 @@ async function selectRange() {
   }
 }
 
-/** EM004: insertSnippet
- * Inserts a code snippet at a specified line.
- * Prompts user for line number and snippet text.
- */
 async function insertSnippet() {
   const lineStr = await window.electronAPI.showPrompt('¿En qué línea insertar?');
   const snippet = await window.electronAPI.showPrompt('Fragmento de código:');
@@ -105,10 +88,6 @@ async function insertSnippet() {
   }
 }
 
-/** EM005: deleteLine
- * Deletes a specified line from the editor.
- * Prompts user for line number.
- */
 async function deleteLine() {
   const lineStr = await window.electronAPI.showPrompt('¿Qué línea eliminar?');
   const line = parseInt(lineStr, 10);
@@ -122,9 +101,6 @@ async function deleteLine() {
   }
 }
 
-/** EM006: initEditorControls
- * Registers editor control buttons.
- */
 function initEditorControls() {
   document.getElementById('btn-set-cursor').addEventListener('click', setCursorLine);
   document.getElementById('btn-select-line').addEventListener('click', selectLine);
@@ -134,25 +110,14 @@ function initEditorControls() {
 }
 
 // ==================== File Manager ====================
-/** FM001: openProject
- * Opens the project folder dialog.
- */
 function openProject() {
   document.getElementById('open-folder').click();
 }
 
-/** FM002: refreshTree
- * Refreshes the file tree.
- */
 function refreshTree() {
   document.getElementById('open-folder').click();
 }
 
-/** FM003: isVisible
- * Checks if a tree node is visible (not collapsed).
- * @param {HTMLElement} li - The <li> element to check.
- * @returns {boolean}
- */
 function isVisible(li) {
   let el = li;
   while (el && el.id !== 'file-tree') {
@@ -162,11 +127,6 @@ function isVisible(li) {
   return true;
 }
 
-/** FM004: openFolderByName
- * Opens a folder node in the tree by name.
- * @param {string} name - Folder name to match.
- * @returns {boolean}
- */
 function openFolderByName(name) {
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.folder')).filter(li => {
@@ -181,11 +141,6 @@ function openFolderByName(name) {
   return false;
 }
 
-/** FM005: openFileByName
- * Opens a file in the tree by name, ignoring extension if omitted.
- * @param {string} name - File name or base name to match.
- * @returns {boolean}
- */
 function openFileByName(name) {
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.file')).filter(li => {
@@ -204,9 +159,6 @@ function openFileByName(name) {
   return false;
 }
 
-/** FM006: createFileInFolder
- * Prompts for a folder and new file name, then creates the file inside.
- */
 async function createFileInFolder() {
   const folder = await window.electronAPI.showPrompt('Crear archivo en carpeta (nombre):');
   if (!folder) return;
@@ -217,9 +169,6 @@ async function createFileInFolder() {
   document.getElementById('new-file').click();
 }
 
-/** FM007: createDirInFolder
- * Prompts for a folder and new directory name, then creates it inside.
- */
 async function createDirInFolder() {
   const folder = await window.electronAPI.showPrompt('Crear carpeta en carpeta (nombre):');
   if (!folder) return;
@@ -230,112 +179,116 @@ async function createDirInFolder() {
   document.getElementById('new-dir').click();
 }
 
-// ==================== Voice Panel Initialization ====================
-/** VP000: initializeVoicePanel
- * Registers all event listeners for voice-panel controls.
- * Call after voicePanel.html is injected.
- */
-function initializeVoicePanel() {
-    initTerminalControls();
-    initEditorControls();
-    document.getElementById('voice-open-project').addEventListener('click', openProject);
-    document.getElementById('voice-refresh-tree').addEventListener('click', refreshTree);
-    document.getElementById('voice-new-file').addEventListener('click', () => document.getElementById('new-file').click());
-    document.getElementById('voice-new-dir').addEventListener('click', () => document.getElementById('new-dir').click());
-    document.getElementById('voice-open-folder').addEventListener('click', async () => {
-      const name = await window.electronAPI.showPrompt('Nombre de la carpeta a abrir:');
-      if (!name) return;
-      const ok = openFolderByName(name);
-      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-    });
-    document.getElementById('voice-open-file').addEventListener('click', async () => {
-      const name = await window.electronAPI.showPrompt('Nombre del archivo a abrir:');
-      if (!name) return;
-      const ok = openFileByName(name);
-      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-    });
-    document.getElementById('voice-new-file-in').addEventListener('click', createFileInFolder);
-    document.getElementById('voice-new-dir-in').addEventListener('click', createDirInFolder);
-  
-    const recordBtn     = document.getElementById('voice-record');
-    const transcriptDiv = document.getElementById('voice-transcript');
-    const playback      = document.getElementById('voice-playback');
-    let mediaRecorder, audioChunks = [];
-  
-    recordBtn.addEventListener('click', async () => {
-      console.log('[Voice] click en botón:', recordBtn.textContent);
-  
-      if (recordBtn.textContent === 'Grabar') {
-        audioChunks = [];
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('[Voice] Obtuvimos stream:', stream);
-  
-        // — Opción B: forzar WebM/Opus si está soportado
-        const desiredMime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-          ? 'audio/webm;codecs=opus'
-          : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
-            ? 'audio/ogg;codecs=opus'
-            : '';
-        const options = desiredMime ? { mimeType: desiredMime } : undefined;
-        console.log('[Voice] options para MediaRecorder:', options);
-  
-        mediaRecorder = options
-          ? new MediaRecorder(stream, options)
-          : new MediaRecorder(stream);
-        console.log('[Voice] MediaRecorder creado con mimeType:', mediaRecorder.mimeType);
-  
-        mediaRecorder.start();
-        recordBtn.textContent = 'Detener';
-        console.log('[Voice] MediaRecorder.start() – estado:', mediaRecorder.state);
-  
-        mediaRecorder.addEventListener('dataavailable', e => {
-          console.log('[Voice] dataavailable – tamaño chunk:', e.data.size, 'type:', e.data.type);
-          audioChunks.push(e.data);
-        });
-  
-        mediaRecorder.addEventListener('stop', async () => {
-          console.log('[Voice] MediaRecorder.stop() – total chunks:', audioChunks.length);
-  
-          // Crear blob sin forzar type
-        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+// ==================== Voice Helpers ====================
+/** Normalize text: lowercase, remove accents & non-alphanumeric */
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9 ]/g, '')
+    .trim();
+}
 
-          console.log('[Voice] Blob creado – bytes:', blob.size, 'type:', blob.type);
-  
-          // Reproducir localmente
-          const url = URL.createObjectURL(blob);
-          playback.src = url;
-          try {
-            await playback.play();
-            console.log('[Voice] Reproduciendo audio grabado');
-          } catch (err) {
-            console.warn('[Voice] No se pudo reproducir automáticamente:', err);
+// ==================== Voice Panel Initialization ====================
+function initializeVoicePanel() {
+  initTerminalControls();
+  initEditorControls();
+
+  document.getElementById('voice-open-project').addEventListener('click', openProject);
+  document.getElementById('voice-refresh-tree').addEventListener('click', refreshTree);
+  document.getElementById('voice-new-file').addEventListener('click', () => document.getElementById('new-file').click());
+  document.getElementById('voice-new-dir').addEventListener('click', () => document.getElementById('new-dir').click());
+  document.getElementById('voice-open-folder').addEventListener('click', async () => {
+    const name = await window.electronAPI.showPrompt('Nombre de la carpeta a abrir:');
+    if (!name) return;
+    const ok = openFolderByName(name);
+    showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+  });
+  document.getElementById('voice-open-file').addEventListener('click', async () => {
+    const name = await window.electronAPI.showPrompt('Nombre del archivo a abrir:');
+    if (!name) return;
+    const ok = openFileByName(name);
+    showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+  });
+  document.getElementById('voice-new-file-in').addEventListener('click', createFileInFolder);
+  document.getElementById('voice-new-dir-in').addEventListener('click', createDirInFolder);
+
+  const recordBtn     = document.getElementById('voice-record');
+  const transcriptDiv = document.getElementById('voice-transcript');
+  const playback      = document.getElementById('voice-playback');
+  let mediaRecorder, audioChunks = [];
+
+  recordBtn.addEventListener('click', async () => {
+    console.log('[Voice] click en botón:', recordBtn.textContent);
+
+    if (recordBtn.textContent === 'Grabar') {
+      audioChunks = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Force WebM/Opus if supported
+      const desiredMime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+          ? 'audio/ogg;codecs=opus'
+          : '';
+      const options = desiredMime ? { mimeType: desiredMime } : undefined;
+      mediaRecorder = options
+        ? new MediaRecorder(stream, options)
+        : new MediaRecorder(stream);
+
+      console.log('[Voice] MediaRecorder mimeType:', mediaRecorder.mimeType);
+      mediaRecorder.start();
+      recordBtn.textContent = 'Detener';
+
+      mediaRecorder.addEventListener('dataavailable', e => {
+        console.log('[Voice] dataavailable – size:', e.data.size, 'type:', e.data.type);
+        audioChunks.push(e.data);
+      });
+
+      mediaRecorder.addEventListener('stop', async () => {
+        console.log('[Voice] stop – chunks:', audioChunks.length);
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+        console.log('[Voice] Blob – size:', blob.size, 'type:', blob.type);
+
+        // Playback
+        const url = URL.createObjectURL(blob);
+        playback.src = url;
+        try { await playback.play(); console.log('[Voice] playing audio'); } catch {}
+
+        // Transcription
+        const arrayBuffer = await blob.arrayBuffer();
+        transcriptDiv.textContent = 'Transcribiendo…';
+        const transcription = await window.electronAPI.transcribeVoice(
+          new Uint8Array(arrayBuffer),
+          blob.type
+        );
+        console.log('[Voice] Transcripción recibida:', transcription);
+
+        // Command detection
+        const norm = normalize(transcription);
+
+        if (norm === 'enter en la terminal') {
+            sendEnterToTerminal();
           }
-  
-          // Enviar a main
-          const arrayBuffer = await blob.arrayBuffer();
-          console.log('[Voice] Enviando audio a main – buffer length:', arrayBuffer.byteLength);
-          transcriptDiv.textContent = 'Transcribiendo…';
-  
-          const uint8 = new Uint8Array(arrayBuffer);
-          const transcription = await window.electronAPI.transcribeVoice(uint8, blob.type);
-          console.log('[Voice] Transcripción recibida:', transcription);
-  
-          transcriptDiv.textContent = transcription || '[no se detectó voz]';
-          recordBtn.textContent = 'Grabar';
-        });
-  
-      } else {
-        console.log('[Voice] request stop()');
-        mediaRecorder.stop();
-      }
-    });
-  }
-  
+          else if (norm === 'ver ruta en la terminal') {
+            console.log('[Voice] detected command: ver ruta en la terminal');
+            sendPwdToTerminal();
+          }
+
+        transcriptDiv.textContent = transcription || '[no se detectó voz]';
+        recordBtn.textContent = 'Grabar';
+      });
+
+    } else {
+      console.log('[Voice] stopping');
+      mediaRecorder.stop();
+    }
+  });
+}
 
 // ==================== Initial Setup ====================
 document.addEventListener('DOMContentLoaded', () => {
   initTerminalControls();
   initEditorControls();
-  // After initial DOM, if voicePanel present, initialize
   if (typeof initializeVoicePanel === 'function') initializeVoicePanel();
 });

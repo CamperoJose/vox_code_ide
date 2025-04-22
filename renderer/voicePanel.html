@@ -3,6 +3,8 @@
       <span class="voice-icon">🎤</span>
       <span class="voice-title">Voz</span>
     </div>
+  
+    <!-- Un solo bloque de controles -->
     <div class="voice-controls" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
       <!-- Terminal -->
       <button id="insert-enter">Enter → Terminal</button>
@@ -24,24 +26,22 @@
       <button id="btn-select-range">Seleccionar Rango…</button>
       <button id="btn-insert-frag">Insertar Fragmento…</button>
       <button id="btn-delete-line">Eliminar Línea…</button>
+  
+      <!-- Grabación -->
+      <button id="voice-record">Grabar</button>
     </div>
+  
+    <!-- Aquí se mostrará el texto transcrito -->
+    <div class="voice-content" id="voice-transcript">
+      <em>Presiona “Grabar” para iniciar.</em>
+    </div>
+  
+    <!-- Reproducción del audio -->
+    <audio id="voice-playback" controls style="width:100%; margin-top:8px;">
+      Tu navegador no soporta audio.
+    </audio>
   </div>
-
-  <div class="voice-controls" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-    <!-- … botones existentes … -->
-    <button id="voice-record">Grabar</button>
-  </div>
-
-  <!-- Aquí se mostrará el texto transcrito -->
-  <div class="voice-content" id="voice-transcript">
-    <em>Presiona “Grabar” para iniciar.</em>
-  </div>
-
-  <!-- Reproducción -->
-  <audio id="voice-playback" controls style="width:100%; margin-top:8px;">
-    Tu navegador no soporta audio.
-  </audio>
-
+  
   
 <style>
     /* ------------------ Voice Panel Styling ------------------ */
