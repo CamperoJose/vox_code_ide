@@ -1,10 +1,10 @@
 // main.js
 const { app, BrowserWindow, ipcMain, dialog, webContents } = require('electron');
 const path = require('path');
-const fs = require('fs-extra');
+const fs   = require('fs-extra');
 const prompt = require('electron-prompt');
-const pty = require("node-pty");
-const os = require("os");
+const pty   = require('node-pty');
+const os    = require('os');
 
 const speech = require('@google-cloud/speech');
 const speechClient = new speech.SpeechClient();
@@ -12,7 +12,6 @@ const speechClient = new speech.SpeechClient();
 // ——————————————————————————————————
 // VERIFICACIÓN DE CREDENCIALES
 console.log('>> GOOGLE_APPLICATION_CREDENTIALS =', process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
 const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 if (!credsPath || !fs.existsSync(credsPath)) {
   console.error('❌ Credenciales no encontradas en', credsPath);
@@ -21,14 +20,13 @@ if (!credsPath || !fs.existsSync(credsPath)) {
 }
 // ——————————————————————————————————
 
-
 // Detecta el shell según el sistema operativo
-const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
+const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
 
-let ideWindow;               // Ventana para el IDE
-let terminalWebContents = null; // Aquí se almacenará el webContents del webview (terminal)
+let ideWindow = null;
+let terminalWebContents = null;
 
-// Función para crear la ventana del IDE (única ventana)
+// Función para crear la ventana del IDE
 function createIDEWindow() {
   ideWindow = new BrowserWindow({
     width: 1800,
@@ -37,47 +35,41 @@ function createIDEWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      webviewTag: true // Habilita el uso de <webview>
+      webviewTag: true
     },
     icon: path.join(__dirname, 'icon.png'),
   });
 
   ideWindow.loadFile(path.join(__dirname, 'renderer/index.html'));
 
-  ideWindow.on("closed", () => {
+  ideWindow.on('closed', () => {
     ideWindow = null;
   });
 
   ideWindow.webContents.on('did-attach-webview', (event, attachedWebContents) => {
     terminalWebContents = attachedWebContents;
     console.log('Terminal webContents attached:', terminalWebContents.id);
-    // Mostrar inmediatamente el prompt sin necesidad de presionar Enter
+    // Mostrar prompt inmediatamente
     ptyProcess.write('\r');
   });
 }
 
 app.whenReady().then(() => {
-  // En Windows, para que las notificaciones y jump lists usen tu icono
   if (process.platform === 'win32') {
     app.setAppUserModelId(process.execPath);
   }
-
-  // En macOS, cambia el icono del dock en caliente
   if (process.platform === 'darwin') {
     app.dock.setIcon(path.join(__dirname, 'icon.png'));
   }
-
   createIDEWindow();
 });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
 });
 
-app.on("activate", () => {
-  if (ideWindow === null) {
-    createIDEWindow();
-  }
+app.on('activate', () => {
+  if (ideWindow === null) createIDEWindow();
 });
 
 // Importación dinámica de electron-store (ESM)
@@ -87,30 +79,27 @@ let store;
   store = new Store();
 })();
 
-// Manejo del diálogo para abrir carpetas y guardar la última ruta
+// IPC: abrir carpeta y guardar ruta
 ipcMain.handle('dialog:openFolder', async () => {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
   if (!result.canceled) {
     const folderPath = result.filePaths[0];
     store.set('lastProjectPath', folderPath);
-    // Cambiar al directorio del proyecto y limpiar la terminal
     ptyProcess.write(`cd "${folderPath}"\r`);
     ptyProcess.write('clear\r');
     return scanFolder(folderPath);
   }
 });
 
-// Restaurar la última ruta guardada
+// IPC: restaurar última ruta
 ipcMain.handle('project:getLast', () => {
   const lastPath = store.get('lastProjectPath');
   if (lastPath) {
-    // Cambiar al directorio guardado y limpiar la terminal
     ptyProcess.write(`cd "${lastPath}"\r`);
     ptyProcess.write('clear\r');
     return scanFolder(lastPath);
-  } else {
-    return null;
   }
+  return null;
 });
 
 // Función para escanear directorios
@@ -130,42 +119,35 @@ function scanFolder(dirPath) {
     });
 }
 
-// IPC para abrir, crear, guardar archivos y crear directorios
-ipcMain.handle('file:open', async (event, filePath) => {
-  const content = await fs.readFile(filePath, 'utf-8');
-  return content;
+// IPC para manejo de archivos
+ipcMain.handle('file:open', async (_, filePath) => {
+  return fs.readFile(filePath, 'utf-8');
 });
-
 ipcMain.handle('file:create', async (_, filePath) => {
   await fs.ensureFile(filePath);
   return true;
 });
-
 ipcMain.handle('directory:create', async (_, dirPath) => {
   await fs.ensureDir(dirPath);
   return true;
 });
-
 ipcMain.handle('file:save', async (_, filePath, content) => {
   await fs.writeFile(filePath, content, 'utf-8');
 });
-
 ipcMain.handle('get:lastProjectPath', () => store.get('lastProjectPath'));
 
 ipcMain.handle('prompt:show', async (_, message) => {
   return prompt({
     title: 'CyberNeon IDE',
     label: message,
-    inputAttrs: {
-      type: 'text'
-    },
+    inputAttrs: { type: 'text' },
     type: 'input'
   });
 });
 
-// Crear el proceso pty (común para la terminal)
+// Proceso pty para la terminal
 const ptyProcess = pty.spawn(shell, [], {
-  name: "xterm-color",
+  name: 'xterm-color',
   cols: 80,
   rows: 30,
   cwd: process.env.HOME,
@@ -175,32 +157,71 @@ const ptyProcess = pty.spawn(shell, [], {
   }
 });
 
-// Envía datos del shell al webview de la terminal (si está disponible)
-ptyProcess.on("data", (data) => {
+// Envío de datos al webview de la terminal
+ptyProcess.on('data', data => {
   if (terminalWebContents) {
-    terminalWebContents.send("terminal.incomingData", data);
+    terminalWebContents.send('terminal.incomingData', data);
   }
 });
 
-// Recibe datos escritos en la terminal (dentro del webview)
-ipcMain.on("terminal.keystroke", (event, key) => {
+// Recepción de teclas desde el webview
+ipcMain.on('terminal.keystroke', (_, key) => {
   ptyProcess.write(key);
 });
 
-ipcMain.handle('voice:transcribe', async (_, audioBuffer) => {
-  // Convierte a base64
-  const audioBytes = Buffer.from(audioBuffer).toString('base64');
+// IPC: transcribir voz con Google Speech-to-Text
+ipcMain.handle('voice:transcribe', async (_, audioBytes, mimeType) => {
+  console.log('–––––––––––––––––––––––––––––––––');
+  console.log('[Main] voice:transcribe invoked');
+  console.log('[Main] mimeType:', mimeType);
+  console.log('[Main] audioBytes length:', audioBytes.length);
+
+  // Detectar encoding apropiado
+  let encoding;
+  if (!mimeType || mimeType.includes('opus'))      encoding = 'WEBM_OPUS';
+  else if (mimeType.includes('ogg'))               encoding = 'OGG_OPUS';
+  else if (mimeType.includes('wav'))               encoding = 'LINEAR16';
+  else {
+    console.warn('[Main] Tipo desconocido, asumiendo WEBM_OPUS');
+    encoding = 'WEBM_OPUS';
+  }
+  console.log('[Main] usando encoding:', encoding);
+
+  // Construir request
+  const audioContent = Buffer.from(audioBytes).toString('base64');
   const request = {
-    audio: { content: audioBytes },
+    audio: { content: audioContent },
     config: {
-      encoding: 'LINEAR16',            // o el encoding que use tu MediaRecorder
-      sampleRateHertz: 48000,          // ajusta si grabas a otra frecuencia
-      languageCode: 'es-ES'            // o 'es-BO' si prefieres
+      encoding,
+      sampleRateHertz: 48000,
+      languageCode: 'es-ES'
     }
   };
+  console.log('[Main] request.config:', request.config);
 
-  const [response] = await speechClient.recognize(request);
-  return response.results
-    .map(r => r.alternatives[0].transcript)
-    .join('\n');
+  try {
+    const [response] = await speechClient.recognize(request);
+    console.log('[Main] Google response:', JSON.stringify(response, null, 2));
+
+    const results = response.results || [];
+    console.log('[Main] results count:', results.length);
+
+    results.forEach((res, idx) => {
+      console.log(`[Main] result #${idx}:`, JSON.stringify(res, null, 2));
+      res.alternatives.forEach((alt, aIdx) => {
+        console.log(`    alt[${aIdx}]: transcript="${alt.transcript}" confidence=${alt.confidence}`);
+      });
+    });
+
+    const transcript = results
+      .map(r => r.alternatives[0]?.transcript)
+      .filter(Boolean)
+      .join('\n');
+
+    console.log('[Main] transcript final:', transcript);
+    return transcript;
+  } catch (err) {
+    console.error('[Main] ERROR en recognize():', err);
+    return '';
+  }
 });

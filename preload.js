@@ -12,6 +12,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sendToTerminal: (data) => ipcRenderer.send('terminal.keystroke', data),
     showPrompt: (message) => ipcRenderer.invoke('prompt:show', message),
 
-    transcribeVoice: (audioBuffer) => ipcRenderer.invoke('voice:transcribe', audioBuffer)
+    transcribeVoice: (audioBytes, mimeType) => ipcRenderer.invoke('voice:transcribe', audioBytes, mimeType)
 
   });

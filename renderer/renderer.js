@@ -236,63 +236,101 @@ async function createDirInFolder() {
  * Call after voicePanel.html is injected.
  */
 function initializeVoicePanel() {
-  initTerminalControls();
-  initEditorControls();
-  document.getElementById('voice-open-project').addEventListener('click', openProject);
-  document.getElementById('voice-refresh-tree').addEventListener('click', refreshTree);
-  // Simple new file/dir
-  document.getElementById('voice-new-file').addEventListener('click', () => document.getElementById('new-file').click());
-  document.getElementById('voice-new-dir').addEventListener('click', () => document.getElementById('new-dir').click());
-  // Open specific
-  document.getElementById('voice-open-folder').addEventListener('click', async () => {
-    const name = await window.electronAPI.showPrompt('Nombre de la carpeta a abrir:');
-    if (!name) return;
-    const ok = openFolderByName(name);
-    showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-  });
-  document.getElementById('voice-open-file').addEventListener('click', async () => {
-    const name = await window.electronAPI.showPrompt('Nombre del archivo a abrir:');
-    if (!name) return;
-    const ok = openFileByName(name);
-    showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-  });
-  // Create inside
-  document.getElementById('voice-new-file-in').addEventListener('click', createFileInFolder);
-  document.getElementById('voice-new-dir-in').addEventListener('click', createDirInFolder);
-  window.initializeVoicePanel = initializeVoicePanel;
-
+    initTerminalControls();
+    initEditorControls();
+    document.getElementById('voice-open-project').addEventListener('click', openProject);
+    document.getElementById('voice-refresh-tree').addEventListener('click', refreshTree);
+    document.getElementById('voice-new-file').addEventListener('click', () => document.getElementById('new-file').click());
+    document.getElementById('voice-new-dir').addEventListener('click', () => document.getElementById('new-dir').click());
+    document.getElementById('voice-open-folder').addEventListener('click', async () => {
+      const name = await window.electronAPI.showPrompt('Nombre de la carpeta a abrir:');
+      if (!name) return;
+      const ok = openFolderByName(name);
+      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+    });
+    document.getElementById('voice-open-file').addEventListener('click', async () => {
+      const name = await window.electronAPI.showPrompt('Nombre del archivo a abrir:');
+      if (!name) return;
+      const ok = openFileByName(name);
+      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+    });
+    document.getElementById('voice-new-file-in').addEventListener('click', createFileInFolder);
+    document.getElementById('voice-new-dir-in').addEventListener('click', createDirInFolder);
   
-  const recordBtn = document.getElementById('voice-record');
-  const transcriptDiv = document.getElementById('voice-transcript');
-  let mediaRecorder, audioChunks = [];
+    const recordBtn     = document.getElementById('voice-record');
+    const transcriptDiv = document.getElementById('voice-transcript');
+    const playback      = document.getElementById('voice-playback');
+    let mediaRecorder, audioChunks = [];
+  
+    recordBtn.addEventListener('click', async () => {
+      console.log('[Voice] click en botón:', recordBtn.textContent);
+  
+      if (recordBtn.textContent === 'Grabar') {
+        audioChunks = [];
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('[Voice] Obtuvimos stream:', stream);
+  
+        // — Opción B: forzar WebM/Opus si está soportado
+        const desiredMime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+            ? 'audio/ogg;codecs=opus'
+            : '';
+        const options = desiredMime ? { mimeType: desiredMime } : undefined;
+        console.log('[Voice] options para MediaRecorder:', options);
+  
+        mediaRecorder = options
+          ? new MediaRecorder(stream, options)
+          : new MediaRecorder(stream);
+        console.log('[Voice] MediaRecorder creado con mimeType:', mediaRecorder.mimeType);
+  
+        mediaRecorder.start();
+        recordBtn.textContent = 'Detener';
+        console.log('[Voice] MediaRecorder.start() – estado:', mediaRecorder.state);
+  
+        mediaRecorder.addEventListener('dataavailable', e => {
+          console.log('[Voice] dataavailable – tamaño chunk:', e.data.size, 'type:', e.data.type);
+          audioChunks.push(e.data);
+        });
+  
+        mediaRecorder.addEventListener('stop', async () => {
+          console.log('[Voice] MediaRecorder.stop() – total chunks:', audioChunks.length);
+  
+          // Crear blob sin forzar type
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
 
-  recordBtn.addEventListener('click', async () => {
-    if (recordBtn.textContent === 'Grabar') {
-      // iniciar grabación
-      audioChunks = [];
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.start();
-      recordBtn.textContent = 'Detener';
-
-      mediaRecorder.addEventListener('dataavailable', e => audioChunks.push(e.data));
-      mediaRecorder.addEventListener('stop', async () => {
-        // combinar y convertir a ArrayBuffer
-        const blob = new Blob(audioChunks, { type: 'audio/wav' });
-        const arrayBuffer = await blob.arrayBuffer();
-        // invocar al main para transcribir
-        transcriptDiv.textContent = 'Transcribiendo…';
-        const transcription = await window.electronAPI.transcribeVoice(new Uint8Array(arrayBuffer));
-        transcriptDiv.textContent = transcription || '[no se detectó voz]';
-      });
-
-    } else {
-      // detener grabación
-      mediaRecorder.stop();
-      recordBtn.textContent = 'Grabar';
-    }
-  });
-}
+          console.log('[Voice] Blob creado – bytes:', blob.size, 'type:', blob.type);
+  
+          // Reproducir localmente
+          const url = URL.createObjectURL(blob);
+          playback.src = url;
+          try {
+            await playback.play();
+            console.log('[Voice] Reproduciendo audio grabado');
+          } catch (err) {
+            console.warn('[Voice] No se pudo reproducir automáticamente:', err);
+          }
+  
+          // Enviar a main
+          const arrayBuffer = await blob.arrayBuffer();
+          console.log('[Voice] Enviando audio a main – buffer length:', arrayBuffer.byteLength);
+          transcriptDiv.textContent = 'Transcribiendo…';
+  
+          const uint8 = new Uint8Array(arrayBuffer);
+          const transcription = await window.electronAPI.transcribeVoice(uint8, blob.type);
+          console.log('[Voice] Transcripción recibida:', transcription);
+  
+          transcriptDiv.textContent = transcription || '[no se detectó voz]';
+          recordBtn.textContent = 'Grabar';
+        });
+  
+      } else {
+        console.log('[Voice] request stop()');
+        mediaRecorder.stop();
+      }
+    });
+  }
+  
 
 // ==================== Initial Setup ====================
 document.addEventListener('DOMContentLoaded', () => {
