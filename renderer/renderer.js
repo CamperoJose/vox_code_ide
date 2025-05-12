@@ -264,6 +264,37 @@ function initializeVoicePanel() {
         );
         console.log('[Voice] Transcripción recibida:', transcription);
 
+     // ———> LLAMADA AL BACKEND CHAT GPT con fetch
+     var summaryResponse = "";
+     try {
+       const res = await fetch('http://localhost:8080/chat', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ message: transcription })
+       });
+       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+       const { match, allParams, functionKey, groupKey, outParams, summary } = await res.json();
+
+       console.log('--- ChatGPT Response ---');
+       console.log('match:',       match);
+       console.log('allParams:',   allParams);
+       console.log('functionKey:', functionKey);
+       console.log('groupKey:',    groupKey);
+       console.log('outParams:',   outParams);
+       console.log('summary:',     summary);
+
+       // Sólo mostramos el summary como toast por ahora
+       showToast(summary);
+       summaryResponse = summary;
+     } catch (err) {
+       console.error('Error calling /chat endpoint:', err);
+       showToast('Error al consultar ChatGPT', false);
+     }
+     // <—— FIN LLAMADA BACKEND
+
+      transcriptDiv.textContent = summaryResponse || '[no se detectó voz]';
+      recordBtn.textContent = 'Grabar';
+
         // Command detection
         const norm = normalize(transcription);
 
@@ -275,7 +306,6 @@ function initializeVoicePanel() {
             sendPwdToTerminal();
           }
 
-        transcriptDiv.textContent = transcription || '[no se detectó voz]';
         recordBtn.textContent = 'Grabar';
       });
 

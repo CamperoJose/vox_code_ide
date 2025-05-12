@@ -194,7 +194,8 @@ ipcMain.handle('voice:transcribe', async (_, audioBytes, mimeType) => {
     config: {
       encoding,
       sampleRateHertz: 48000,
-      languageCode: 'es-ES'
+      languageCode: 'es-ES',
+      alternativeLanguageCodes: ['en-US']
     }
   };
   console.log('[Main] request.config:', request.config);
