@@ -29,16 +29,15 @@ function sendEnterToTerminal() {
 /** TM002: sendPwdToTerminal
  * Sends 'pwd' command to display current path in terminal.
  */
-function sendPwdToTerminal() {
-  window.electronAPI.sendToTerminal('pwd\r');
+function sendCommandToTerminal(command) {
+  window.electronAPI.sendToTerminal(`${command}\r`);
 }
-
 /** TM003: initTerminalControls
  * Registers terminal control buttons.
  */
 function initTerminalControls() {
   document.getElementById('insert-enter').addEventListener('click', sendEnterToTerminal);
-  document.getElementById('show-path').addEventListener('click', sendPwdToTerminal);
+  document.getElementById('show-path').addEventListener('click', sendCommandToTerminal);
 
 }
 
@@ -265,7 +264,10 @@ function initializeVoicePanel() {
         console.log('[Voice] Transcripción recibida:', transcription);
 
      // ———> LLAMADA AL BACKEND CHAT GPT con fetch
-     var summaryResponse = "";
+     let summaryResponse = '[no se detectó voz]';
+     let functionKeyGot  = null;
+     let outParamsGot    = [];
+     
      try {
        const res = await fetch('http://localhost:8080/chat', {
          method: 'POST',
@@ -273,46 +275,63 @@ function initializeVoicePanel() {
          body: JSON.stringify({ message: transcription })
        });
        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+     
        const { match, allParams, functionKey, groupKey, outParams, summary } = await res.json();
-
+     
        console.log('--- ChatGPT Response ---');
-       console.log('match:',       match);
-       console.log('allParams:',   allParams);
-       console.log('functionKey:', functionKey);
-       console.log('groupKey:',    groupKey);
-       console.log('outParams:',   outParams);
-       console.log('summary:',     summary);
-
-       // Sólo mostramos el summary como toast por ahora
+       console.log({ match, allParams, functionKey, groupKey, outParams, summary });
+     
+       // Muestro sólo summary
        showToast(summary);
        summaryResponse = summary;
+       functionKeyGot  = functionKey;
+       outParamsGot    = outParams;
+     
      } catch (err) {
        console.error('Error calling /chat endpoint:', err);
        showToast('Error al consultar ChatGPT', false);
      }
+
+
      // <—— FIN LLAMADA BACKEND
 
-      transcriptDiv.textContent = summaryResponse || '[no se detectó voz]';
-      recordBtn.textContent = 'Grabar';
-
-        // Command detection
-        const norm = normalize(transcription);
-
-        if (norm === 'enter en la terminal') {
-            sendEnterToTerminal();
+     switch (functionKeyGot) {
+      case '#TERMINAL_EMPTY_ENTER':
+        sendEnterToTerminal();
+        break;
+    
+      case '#TERMINAL_COMMAND':
+        {
+          // busco el parámetro con clave "#COMMAND"
+          const cmdParam = outParamsGot.find(p => p.paramKey === '#COMMAND');
+          if (cmdParam && cmdParam.value) {
+            sendCommandToTerminal(cmdParam.value);
+          } else {
+            console.warn('No se encontró parámetro #COMMAND en outParams');
           }
-          else if (norm === 'ver ruta en la terminal') {
-            console.log('[Voice] detected command: ver ruta en la terminal');
-            sendPwdToTerminal();
-          }
+        }
+        break;
+    
+      // Más casos en el futuro, p.ej.:
+      // case '#INSERT_CODE':
+      //   // buscar #LINE_NUMBER y #GENERATED_CODE en outParamsGot...
+      //   break;
+    
+      default:
+        // ningún action por ahora
+        break;
+    }
 
-        recordBtn.textContent = 'Grabar';
+
       });
 
     } else {
       console.log('[Voice] stopping');
       mediaRecorder.stop();
     }
+
+
+    
   });
 }
 
