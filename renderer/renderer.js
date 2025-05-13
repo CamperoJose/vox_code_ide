@@ -14,11 +14,11 @@ function showToast(message, success = true) {
   }, 3000);
 }
 
-function sendEnterToTerminal() {
+function sendEnterToTerminal() {//DONE
   window.electronAPI.sendToTerminal('\r');
 }
 
-function sendCommandToTerminal(command) {
+function sendCommandToTerminal(command) {//DONE
   window.electronAPI.sendToTerminal(`${command}\r`);
 }
 
@@ -28,7 +28,7 @@ function initTerminalControls() {
 
 }
 
-async function setCursorLine(lineStr) {
+async function setCursorLine(lineStr) {//DONE
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     editor.setPosition({ lineNumber: line, column: 1 });
@@ -36,7 +36,7 @@ async function setCursorLine(lineStr) {
   }
 }
 
-async function selectLine(lineStr) {
+async function selectLine(lineStr) {//DONE
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     const maxCol = editor.getModel().getLineMaxColumn(line);
@@ -45,7 +45,7 @@ async function selectLine(lineStr) {
   }
 }
 
-async function selectRange(fromStr, toStr) {
+async function selectRange(fromStr, toStr) {//DONE
   const from = parseInt(fromStr, 10);
   const to   = parseInt(toStr, 10);
   if (!isNaN(from) && !isNaN(to) && from >= 1 && to >= from) {
@@ -55,7 +55,7 @@ async function selectRange(fromStr, toStr) {
   }
 }
 
-async function insertSnippet(lineStr, snippet) {
+async function insertSnippet(lineStr, snippet) {//DONE
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     editor.executeEdits('insert-frag', [{
@@ -67,8 +67,7 @@ async function insertSnippet(lineStr, snippet) {
   }
 }
 
-async function deleteLine() {
-  const lineStr = await window.electronAPI.showPrompt('¿Qué línea eliminar?');
+async function deleteLine(lineStr) {//DONE
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     editor.executeEdits('delete-line', [{
@@ -106,7 +105,7 @@ function isVisible(li) {
   return true;
 }
 
-function openFolderByName(name) {
+function openFolderByName(name) { //DOING
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.folder')).filter(li => {
     const text = li.querySelector('.file-name').textContent.trim().toLowerCase();
@@ -345,6 +344,28 @@ function initializeVoicePanel() {
                 }
               }
               break;
+
+              case '#DELETE_LINE':
+                {
+                  const lineNumber = outParamsGot.find(p => p.paramKey === '#LINE_NUMBER');
+                  if (lineNumber && lineNumber.value) {
+                    deleteLine(lineNumber.value);
+                  } else {
+                    console.warn('No se encontró parámetros completos');
+                  }
+                }
+                break;
+
+                case '#OPEN_FOLDER':
+                  {
+                    const name = outParamsGot.find(p => p.paramKey === '#OPENED_FOLDER_NAME');
+                    if (name && name.value) {
+                      openFolderByName(name.value);
+                    } else {
+                      console.warn('No se encontró parámetros completos');
+                    }
+                  }
+                  break;
     
       default:
         break;
