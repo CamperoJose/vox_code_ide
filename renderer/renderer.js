@@ -105,7 +105,7 @@ function isVisible(li) {
   return true;
 }
 
-function openFolderByName(name) { //DOING
+function openFolderByName(name) { //DONE
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.folder')).filter(li => {
     const text = li.querySelector('.file-name').textContent.trim().toLowerCase();
@@ -119,7 +119,7 @@ function openFolderByName(name) { //DOING
   return false;
 }
 
-function openFileByName(name) {
+function openFileByName(name) { //DOING
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.file')).filter(li => {
     let text = li.querySelector('.file-name').textContent.trim().toLowerCase();
@@ -366,6 +366,17 @@ function initializeVoicePanel() {
                     }
                   }
                   break;
+
+                  case '#OPEN_FILE':
+                    {
+                      const name = outParamsGot.find(p => p.paramKey === '#OPENED_FILE_NAME');
+                      if (name && name.value) {
+                        openFileByName(name.value);
+                      } else {
+                        console.warn('No se encontró parámetros completos');
+                      }
+                    }
+                    break;
     
       default:
         break;
