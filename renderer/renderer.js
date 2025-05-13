@@ -1,10 +1,6 @@
 import { editor, monaco } from './editor/editor.js';
 import './fileManager/fileManager.js';
 
-// ==================== Utility ====================
-/** UT001: showToast
- * Shows a transient notification toast.
- */
 function showToast(message, success = true) {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -18,32 +14,21 @@ function showToast(message, success = true) {
   }, 3000);
 }
 
-// ==================== Terminal ====================
-/** TM001: sendEnterToTerminal
- * Sends an Enter keystroke to the terminal.
- */
 function sendEnterToTerminal() {
   window.electronAPI.sendToTerminal('\r');
 }
 
-/** TM002: sendPwdToTerminal
- * Sends 'pwd' command to display current path in terminal.
- */
 function sendCommandToTerminal(command) {
   window.electronAPI.sendToTerminal(`${command}\r`);
 }
-/** TM003: initTerminalControls
- * Registers terminal control buttons.
- */
+
 function initTerminalControls() {
   document.getElementById('insert-enter').addEventListener('click', sendEnterToTerminal);
   document.getElementById('show-path').addEventListener('click', sendCommandToTerminal);
 
 }
 
-// ==================== Code Editor ====================
-async function setCursorLine() {
-  const lineStr = await window.electronAPI.showPrompt('¿En qué línea colocar el cursor?');
+async function setCursorLine(lineStr) {
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     editor.setPosition({ lineNumber: line, column: 1 });
@@ -51,8 +36,7 @@ async function setCursorLine() {
   }
 }
 
-async function selectLine() {
-  const lineStr = await window.electronAPI.showPrompt('¿Qué línea quieres seleccionar?');
+async function selectLine(lineStr) {
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     const maxCol = editor.getModel().getLineMaxColumn(line);
@@ -61,9 +45,7 @@ async function selectLine() {
   }
 }
 
-async function selectRange() {
-  const fromStr = await window.electronAPI.showPrompt('Línea desde:');
-  const toStr   = await window.electronAPI.showPrompt('Línea hasta:');
+async function selectRange(fromStr, toStr) {
   const from = parseInt(fromStr, 10);
   const to   = parseInt(toStr, 10);
   if (!isNaN(from) && !isNaN(to) && from >= 1 && to >= from) {
@@ -73,9 +55,7 @@ async function selectRange() {
   }
 }
 
-async function insertSnippet() {
-  const lineStr = await window.electronAPI.showPrompt('¿En qué línea insertar?');
-  const snippet = await window.electronAPI.showPrompt('Fragmento de código:');
+async function insertSnippet(lineStr, snippet) {
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
     editor.executeEdits('insert-frag', [{
@@ -263,7 +243,6 @@ function initializeVoicePanel() {
         );
         console.log('[Voice] Transcripción recibida:', transcription);
 
-     // ———> LLAMADA AL BACKEND CHAT GPT con fetch
      let summaryResponse = '[no se detectó voz]';
      let functionKeyGot  = null;
      let outParamsGot    = [];
@@ -292,9 +271,6 @@ function initializeVoicePanel() {
        showToast('Error al consultar ChatGPT', false);
      }
 
-
-     // <—— FIN LLAMADA BACKEND
-
      switch (functionKeyGot) {
       case '#TERMINAL_EMPTY_ENTER':
         sendEnterToTerminal();
@@ -311,14 +287,66 @@ function initializeVoicePanel() {
           }
         }
         break;
-    
-      // Más casos en el futuro, p.ej.:
-      // case '#INSERT_CODE':
-      //   // buscar #LINE_NUMBER y #GENERATED_CODE en outParamsGot...
-      //   break;
+
+
+        case '#MOVE_CURSOR_TO_LINE':
+          {
+            const param = outParamsGot.find(p => p.paramKey === '#LINE_NUMBER');
+            if (param && param.value) {
+              setCursorLine(param.value);
+            } else {
+              console.warn('No se encontró parámetros completos');
+            }
+          }
+          break;
+
+        case '#SELECT_LINE':
+          {
+            const param = outParamsGot.find(p => p.paramKey === '#LINE_NUMBER');
+            if (param && param.value) {
+              setCursorLine(param.value);
+            } else {
+              console.warn('No se encontró parámetros completos');
+            }
+          }
+          break;
+
+        case '#SELECT_LINE':
+          {
+            const param = outParamsGot.find(p => p.paramKey === '#LINE_NUMBER');
+            if (param && param.value) {
+              selectLine(param.value);
+            } else {
+              console.warn('No se encontró parámetros completos');
+            }
+          }
+          break;
+
+          case '#SELECT_LINE_RANGE':
+            {
+              const paramFrom = outParamsGot.find(p => p.paramKey === '#START_LINE');
+              const paramTo = outParamsGot.find(p => p.paramKey === '#END_LINE');
+              if (paramFrom && paramFrom.value) {
+                selectRange(paramFrom.value , paramTo.value);
+              } else {
+                console.warn('No se encontró parámetros completos');
+              }
+            }
+            break;
+
+            case '#INSERT_CODE':
+              {
+                const lineNumber = outParamsGot.find(p => p.paramKey === '#LINE_NUMBER');
+                const genCode = outParamsGot.find(p => p.paramKey === '#GENERATED_CODE');
+                if (lineNumber && lineNumber.value) {
+                  insertSnippet(lineNumber.value , genCode.value);
+                } else {
+                  console.warn('No se encontró parámetros completos');
+                }
+              }
+              break;
     
       default:
-        // ningún action por ahora
         break;
     }
 
