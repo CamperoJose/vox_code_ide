@@ -392,18 +392,18 @@ function initializeVoicePanel() {
     
       default:
         break;
-    }
 
+    }
+    recordBtn.textContent = 'Grabar';
+    transcriptDiv.textContent = summaryResponse;
 
       });
 
+
     } else {
-      console.log('[Voice] stopping');
+      console.log('[Voice] stopping22');
       mediaRecorder.stop();
     }
-
-
-    
   });
 }
 
