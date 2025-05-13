@@ -49,9 +49,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Crear un nuevo archivo en la carpeta seleccionada o raíz
-async function createNewFile() {
-  console.log('[CreateFile] Iniciando...');
-  const name = await window.electronAPI.prompt("Nombre del nuevo archivo:");
+async function createNewFile(name) {
   if (!name) return console.log('[CreateFile] Cancelado (nombre vacío).');
 
   let target = selectedDirPath;

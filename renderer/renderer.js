@@ -1,6 +1,6 @@
 import { editor, monaco } from './editor/editor.js';
 import './fileManager/fileManager.js';
-
+import {createNewFile, createNewDir, refreshFileTree, renderFileTree, detectLanguage} from './fileManager/fileManager.js';
 function showToast(message, success = true) {
   const container = document.getElementById('toast-container');
   if (!container) return;
@@ -119,7 +119,7 @@ function openFolderByName(name) { //DONE
   return false;
 }
 
-function openFileByName(name) { //DOING
+function openFileByName(name) { //DONE
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll('li.file')).filter(li => {
     let text = li.querySelector('.file-name').textContent.trim().toLowerCase();
@@ -377,6 +377,18 @@ function initializeVoicePanel() {
                       }
                     }
                     break;
+
+
+                case '#NEW_FILE_ROOT':
+                  {
+                    const name = outParamsGot.find(p => p.paramKey === '#CREATED_FILE_NAME');
+                    if (name && name.value) {
+                      createNewFile(name.value);
+                    } else {
+                      console.warn('No se encontró parámetros completos');
+                    }
+                  }
+                  break;
     
       default:
         break;
