@@ -331,16 +331,13 @@
   </script>
 
 <script>
-  // Carga dinámica del panel de voz
-  fetch('voicePanel.html')
-    .then(res => res.text())
-    .then(html => {
-      const container = document.getElementById('voicePanelContainer');
-      container.innerHTML = html;
-      // Una vez inyectado, initializa los listeners del renderer
-      if (window.initializeVoicePanel) initializeVoicePanel();
-    })
-    .catch(err => console.error('Error cargando panel de voz:', err));
+fetch('voicePanel.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('voicePanelContainer').innerHTML = html;
+    if (window.initializeVoicePanel) initializeVoicePanel();
+  })
+  .catch(err => console.error('Error cargando panel de voz:', err));
 </script>
 
 </body>

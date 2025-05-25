@@ -1,66 +1,42 @@
 <div class="voice-panel" id="voicePanel">
-    <div class="voice-header">
-      <span class="voice-icon">🎤</span>
-      <span class="voice-title">Voz</span>
-    </div>
-  
-    <!-- Un solo bloque de controles -->
-    <div class="voice-controls" style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-      <!-- Terminal -->
-      <button id="insert-enter">Enter → Terminal</button>
-      <button id="show-path">Ver Ruta (pmd)</button>
-  
-      <!-- File Manager -->
-      <button id="voice-open-project">Abrir Proyecto</button>
-      <button id="voice-refresh-tree">Refrescar Árbol</button>
-      <button id="voice-new-file">Nuevo Archivo</button>
-      <button id="voice-new-dir">Nueva Carpeta</button>
-      <button id="voice-open-folder">Abrir Carpeta ↓</button>
-      <button id="voice-open-file">Abrir Archivo ↓</button>
-      <button id="voice-new-file-in">Nuevo Archivo en Carpeta</button>
-      <button id="voice-new-dir-in">Nueva Carpeta en Carpeta</button>
-  
-      <!-- Code Editor -->
-      <button id="btn-set-cursor">Cursor en Línea…</button>
-      <button id="btn-select-line">Seleccionar Línea…</button>
-      <button id="btn-select-range">Seleccionar Rango…</button>
-      <button id="btn-insert-frag">Insertar Fragmento…</button>
-      <button id="btn-delete-line">Eliminar Línea…</button>
-  
-      <!-- Grabación -->
-      <button id="voice-record">Grabar</button>
-    </div>
-  
-    <!-- Aquí se mostrará el texto transcrito -->
-    <div class="voice-content" id="voice-transcript">
-      <em>Presiona “Grabar” para iniciar.</em>
-    </div>
-  
-    <!-- Reproducción del audio -->
-    <audio id="voice-playback" controls style="width:100%; margin-top:8px;">
-      Tu navegador no soporta audio.
-    </audio>
+  <div class="voice-header">
+    <span class="voice-icon">🎤</span>
+    <span class="voice-title">Chat por Voz</span>
   </div>
-  
-  
-<style>
-    /* ------------------ Voice Panel Styling ------------------ */
 
+  <!-- Área de mensajes -->
+  <div class="chat-content" id="chatContent">
+    <div class="chat-message system">
+      <em>Presiona "Grabar" para iniciar una interacción.</em>
+    </div>
+  </div>
+
+  <!-- Botón grabar/detener -->
+  <div class="voice-controls-bottom">
+    <button id="voice-record">Grabar</button>
+  </div>
+
+  <audio id="voice-playback" controls hidden></audio>
+</div>
+
+<style>
 .voice-panel {
   width: 260px;
+  max-height: 100vh; /* Altura máxima de la pantalla visible */
   background: linear-gradient(145deg, #2c2f33, #23252a);
   border-left: 2px solid #3a3f4b;
   display: flex;
   flex-direction: column;
   padding: 16px;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
 .voice-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   padding-bottom: 8px;
   border-bottom: 1px solid #3a3f4b;
 }
@@ -76,66 +52,65 @@
   color: #f0f0f0;
 }
 
-/* Pulsing mic animation */
+.chat-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: #1f2226;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #3a3f4b;
+}
+
+.chat-message {
+  padding: 6px 10px;
+  border-radius: 8px;
+  max-width: 85%;
+  word-break: break-word;
+}
+
+.user {
+  align-self: flex-end;
+  background-color: #4a4f59;
+  color: #e0e0e0;
+}
+
+.system {
+  align-self: flex-start;
+  background-color: #3a3f4b;
+  color: #fff;
+}
+
+.voice-controls-bottom {
+  padding-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.voice-controls-bottom button {
+  padding: 8px 16px;
+  background: #62dafb;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #23252a;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.voice-controls-bottom button:hover {
+  background: #4bc0eb;
+}
+
+.loader {
+  width: 40px;
+  height: 15px;
+}
+
 @keyframes pulse {
   0%, 100% { transform: scale(1); color: #62dafb; }
   50%      { transform: scale(1.1); color: #4bc0eb; }
 }
-
-.voice-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.voice-controls button {
-  flex: 1 1 48%;
-  padding: 8px 12px;
-  background: #3a3f4b;
-  color: #e0e0e0;
-  border: 1px solid #4a4f59;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-}
-
-.voice-controls button:hover {
-  background: #4a4f59;
-  transform: translateY(-1px);
-}
-
-.voice-controls button:active {
-  background: #2a2d31;
-  transform: translateY(1px);
-}
-
-/* If you have a scrollable list inside voice-content */
-.voice-content {
-  flex: 1;
-  overflow-y: auto;
-  border: 1px solid #3a3f4b;
-  border-radius: 4px;
-  padding: 8px;
-  background-color: #1f2226;
-}
-
-/* Custom scrollbar for voice-content */
-.voice-content::-webkit-scrollbar {
-  width: 8px;
-}
-.voice-content::-webkit-scrollbar-track {
-  background: #23252a;
-  border-radius: 4px;
-}
-.voice-content::-webkit-scrollbar-thumb {
-  background: #4a4f59;
-  border-radius: 4px;
-}
-.voice-content::-webkit-scrollbar-thumb:hover {
-  background: #5a5f69;
-}
-
-    
 </style>

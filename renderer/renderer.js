@@ -27,14 +27,14 @@ function sendCommandToTerminal(command) {
   window.electronAPI.sendToTerminal(`${command}\r`);
 }
 
-function initTerminalControls() {
-  document
-    .getElementById("insert-enter")
-    .addEventListener("click", sendEnterToTerminal);
-  document
-    .getElementById("show-path")
-    .addEventListener("click", sendCommandToTerminal);
-}
+// function initTerminalControls() {
+//   document
+//     .getElementById("insert-enter")
+//     .addEventListener("click", sendEnterToTerminal);
+//   document
+//     .getElementById("show-path")
+//     .addEventListener("click", sendCommandToTerminal);
+// }
 
 async function setCursorLine(lineStr) {
   const line = parseInt(lineStr, 10);
@@ -91,23 +91,23 @@ async function deleteLine(lineStr) {
   }
 }
 
-function initEditorControls() {
-  document
-    .getElementById("btn-set-cursor")
-    .addEventListener("click", setCursorLine);
-  document
-    .getElementById("btn-select-line")
-    .addEventListener("click", selectLine);
-  document
-    .getElementById("btn-select-range")
-    .addEventListener("click", selectRange);
-  document
-    .getElementById("btn-insert-frag")
-    .addEventListener("click", insertSnippet);
-  document
-    .getElementById("btn-delete-line")
-    .addEventListener("click", deleteLine);
-}
+// function initEditorControls() {
+//   document
+//     .getElementById("btn-set-cursor")
+//     .addEventListener("click", setCursorLine);
+//   document
+//     .getElementById("btn-select-line")
+//     .addEventListener("click", selectLine);
+//   document
+//     .getElementById("btn-select-range")
+//     .addEventListener("click", selectRange);
+//   document
+//     .getElementById("btn-insert-frag")
+//     .addEventListener("click", insertSnippet);
+//   document
+//     .getElementById("btn-delete-line")
+//     .addEventListener("click", deleteLine);
+// }
 
 function openProject() {
   document.getElementById("open-folder").click();
@@ -198,51 +198,49 @@ function normalize(text) {
 }
 
 function initializeVoicePanel() {
-  initTerminalControls();
-  initEditorControls();
 
-  document
-    .getElementById("voice-open-project")
-    .addEventListener("click", openProject);
-  document
-    .getElementById("voice-refresh-tree")
-    .addEventListener("click", refreshTree);
-  document
-    .getElementById("voice-new-file")
-    .addEventListener("click", () =>
-      document.getElementById("new-file").click()
-    );
-  document
-    .getElementById("voice-new-dir")
-    .addEventListener("click", () =>
-      document.getElementById("new-dir").click()
-    );
-  document
-    .getElementById("voice-open-folder")
-    .addEventListener("click", async () => {
-      const name = await window.electronAPI.showPrompt(
-        "Nombre de la carpeta a abrir:"
-      );
-      if (!name) return;
-      const ok = openFolderByName(name);
-      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-    });
-  document
-    .getElementById("voice-open-file")
-    .addEventListener("click", async () => {
-      const name = await window.electronAPI.showPrompt(
-        "Nombre del archivo a abrir:"
-      );
-      if (!name) return;
-      const ok = openFileByName(name);
-      showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-    });
-  document
-    .getElementById("voice-new-file-in")
-    .addEventListener("click", createFileInFolder);
-  document
-    .getElementById("voice-new-dir-in")
-    .addEventListener("click", createDirInFolder);
+  // document
+  //   .getElementById("voice-open-project")
+  //   .addEventListener("click", openProject);
+  // document
+  //   .getElementById("voice-refresh-tree")
+  //   .addEventListener("click", refreshTree);
+  // document
+  //   .getElementById("voice-new-file")
+  //   .addEventListener("click", () =>
+  //     document.getElementById("new-file").click()
+  //   );
+  // document
+  //   .getElementById("voice-new-dir")
+  //   .addEventListener("click", () =>
+  //     document.getElementById("new-dir").click()
+  //   );
+  // document
+  //   .getElementById("voice-open-folder")
+  //   .addEventListener("click", async () => {
+  //     const name = await window.electronAPI.showPrompt(
+  //       "Nombre de la carpeta a abrir:"
+  //     );
+  //     if (!name) return;
+  //     const ok = openFolderByName(name);
+  //     showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+  //   });
+  // document
+  //   .getElementById("voice-open-file")
+  //   .addEventListener("click", async () => {
+  //     const name = await window.electronAPI.showPrompt(
+  //       "Nombre del archivo a abrir:"
+  //     );
+  //     if (!name) return;
+  //     const ok = openFileByName(name);
+  //     showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
+  //   });
+  // document
+  //   .getElementById("voice-new-file-in")
+  //   .addEventListener("click", createFileInFolder);
+  // document
+  //   .getElementById("voice-new-dir-in")
+  //   .addEventListener("click", createDirInFolder);
 
   const recordBtn = document.getElementById("voice-record");
   const transcriptDiv = document.getElementById("voice-transcript");
@@ -284,6 +282,7 @@ function initializeVoicePanel() {
       });
 
       mediaRecorder.addEventListener("stop", async () => {
+        const loadingMessageId = addUserMessageLoading();
         console.log("[Voice] stop – chunks:", audioChunks.length);
         const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
         console.log("[Voice] Blob – size:", blob.size, "type:", blob.type);
@@ -296,12 +295,11 @@ function initializeVoicePanel() {
         } catch {}
 
         const arrayBuffer = await blob.arrayBuffer();
-        transcriptDiv.textContent = "Transcribiendo…";
         const transcription = await window.electronAPI.transcribeVoice(
           new Uint8Array(arrayBuffer),
           blob.type
         );
-        console.log("[Voice] Transcripción recibida:", transcription);
+        updateUserMessage(loadingMessageId, transcription);
 
         let summaryResponse = "[no se detectó voz]";
         let functionKeyGot = null;
@@ -534,8 +532,12 @@ function initializeVoicePanel() {
           default:
             break;
         }
-        recordBtn.textContent = "Grabar";
-        transcriptDiv.textContent = summaryResponse;
+
+
+      addChatMessage(summaryResponse, "system");
+              
+      recordBtn.textContent = "Grabar";
+
       });
     } else {
       console.log("[Voice] stopping22");
@@ -545,7 +547,40 @@ function initializeVoicePanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initTerminalControls();
-  initEditorControls();
+  // initTerminalControls();
+  // initEditorControls();
   if (typeof initializeVoicePanel === "function") initializeVoicePanel();
 });
+
+
+// Función para agregar mensajes al chat
+// Agregar mensaje con loader al chat
+function addUserMessageLoading() {
+  const chatContent = document.getElementById("chatContent");
+  const messageDiv = document.createElement("div");
+  const messageId = `msg-${Date.now()}`;
+  messageDiv.className = "chat-message user";
+  messageDiv.id = messageId;
+  messageDiv.innerHTML = `<img src="assets/loader_typing.gif" class="loader" alt="Cargando...">`;
+  chatContent.appendChild(messageDiv);
+  chatContent.scrollTop = chatContent.scrollHeight;
+  return messageId;
+}
+
+// Reemplazar loader con el mensaje transcrito
+function updateUserMessage(id, text) {
+  const messageDiv = document.getElementById(id);
+  if (messageDiv) {
+    messageDiv.textContent = text;
+  }
+}
+
+// Agregar mensajes del sistema o usuario al chat directamente
+function addChatMessage(text, sender) {
+  const chatContent = document.getElementById("chatContent");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `chat-message ${sender}`;
+  messageDiv.textContent = text;
+  chatContent.appendChild(messageDiv);
+  chatContent.scrollTop = chatContent.scrollHeight;
+}
