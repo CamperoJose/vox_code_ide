@@ -1,6 +1,7 @@
 const { scanFolder, readFile, saveFile, createFile, createDir } = require('./fileUtils');
 const prompt = require('electron-prompt');
 const { createSpeechClient } = require('./speechUtils');
+const  filePathInit = require('path').dirname;
 
 function setupIpcHandlers(ipcMain, dialog, store, ptyProcess) {
   ipcMain.handle('dialog:openFolder', async () => {
