@@ -379,16 +379,18 @@ function initializeVoicePanel() {
                     break;
 
 
-                case '#NEW_FILE_ROOT':
-                  {
-                    const name = outParamsGot.find(p => p.paramKey === '#CREATED_FILE_NAME');
-                    if (name && name.value) {
-                      createNewFile(name.value);
-                    } else {
-                      console.warn('No se encontró parámetros completos');
-                    }
-                  }
-                  break;
+            case '#NEW_FOLDER_ROOT':
+              {
+                const name = outParamsGot.find(p => p.paramKey === '#CREATED_FOLDER_NAME');
+                if (name && name.value) {
+                  createNewDir(name.value);
+                } else {
+                  console.warn('No se encontró parámetros completos');
+                }
+              }
+              break;
+
+
     
       default:
         break;
@@ -399,7 +401,6 @@ function initializeVoicePanel() {
 
       });
 
-
     } else {
       console.log('[Voice] stopping22');
       mediaRecorder.stop();
@@ -407,7 +408,6 @@ function initializeVoicePanel() {
   });
 }
 
-// ==================== Initial Setup ====================
 document.addEventListener('DOMContentLoaded', () => {
   initTerminalControls();
   initEditorControls();

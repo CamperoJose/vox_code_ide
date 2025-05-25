@@ -63,9 +63,7 @@ async function createNewFile(name) {
 }
 
 // Crear nueva carpeta en la carpeta seleccionada o raíz
-async function createNewDir() {
-  console.log('[CreateDir] Iniciando...');
-  const name = await window.electronAPI.prompt("Nombre de la nueva carpeta:");
+async function createNewDir(name) {
   if (!name) return console.log('[CreateDir] Cancelado (nombre vacío).');
 
   let target = selectedDirPath;
