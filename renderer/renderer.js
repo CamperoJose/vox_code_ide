@@ -198,7 +198,6 @@ function normalize(text) {
 }
 
 function initializeVoicePanel() {
-
   // document
   //   .getElementById("voice-open-project")
   //   .addEventListener("click", openProject);
@@ -305,6 +304,8 @@ function initializeVoicePanel() {
         let functionKeyGot = null;
         let outParamsGot = [];
 
+        let status = false;
+
         try {
           const res = await fetch("http://localhost:8080/chat", {
             method: "POST",
@@ -336,14 +337,13 @@ function initializeVoicePanel() {
           summaryResponse = summary;
           functionKeyGot = functionKey;
           outParamsGot = outParams;
+
+          if (match === true && allParams === true) {
+            status = true;
+          }
         } catch (err) {
           console.error("Error calling /chat endpoint:", err);
           showToast("Error al consultar ChatGPT", false);
-        }
-
-        let status = false;
-        if (match === true && allParams === true){
-          status = true;
         }
 
         switch (functionKeyGot) {
@@ -538,15 +538,9 @@ function initializeVoicePanel() {
             break;
         }
 
-        
+        addChatMessage(summaryResponse, "system", status);
 
-
-
-
-      addChatMessage(summaryResponse, "system", status);
-              
-      recordBtn.textContent = "Grabar";
-
+        recordBtn.textContent = "Grabar";
       });
     } else {
       console.log("[Voice] stopping22");
@@ -560,7 +554,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // initEditorControls();
   if (typeof initializeVoicePanel === "function") initializeVoicePanel();
 });
-
 
 // Función para agregar mensajes al chat
 // Agregar mensaje con loader al chat
@@ -585,10 +578,22 @@ function updateUserMessage(id, text) {
 }
 
 // Agregar mensajes del sistema o usuario al chat directamente
-function addChatMessage(text, sender, status) {
+function addChatMessage(text, sender, status = null) {
   const chatContent = document.getElementById("chatContent");
   const messageDiv = document.createElement("div");
-  messageDiv.className = `chat-message ${sender}`;
+
+  messageDiv.classList.add('chat-message', sender);
+
+  if (sender === 'system') {
+    if (status === true) {
+      messageDiv.classList.add('true');
+    } else if (status === false) {
+      messageDiv.classList.add('false');
+    } else {
+      messageDiv.classList.add('neutral');
+    }
+  }
+
   messageDiv.textContent = text;
   chatContent.appendChild(messageDiv);
   chatContent.scrollTop = chatContent.scrollHeight;
