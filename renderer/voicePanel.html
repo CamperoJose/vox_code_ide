@@ -14,7 +14,6 @@
     <button id="voice-record">Grabar</button>
   </div>
 
-  <audio id="voice-playback" controls hidden></audio>
 </div>
 
 <style>
@@ -100,7 +99,7 @@
   content: "";
   position: absolute;
   bottom: 0;
-  right: -18px;
+  right: -10px;
   width: 0;
   height: 0;
   border-top: 14px solid transparent;
@@ -108,7 +107,6 @@
   border-left: 18px solid #ffffff;
 }
 
-/* Picos inferiores para mensajes del sistema (true, false, neutral) */
 .chat-message.system::after {
   content: "";
   position: absolute;

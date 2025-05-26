@@ -287,7 +287,7 @@ function initializeVoicePanel() {
         console.log("[Voice] Blob – size:", blob.size, "type:", blob.type);
 
         const url = URL.createObjectURL(blob);
-        playback.src = url;
+
         try {
           await playback.play();
           console.log("[Voice] playing audio");
@@ -563,7 +563,7 @@ function addUserMessageLoading() {
   const messageId = `msg-${Date.now()}`;
   messageDiv.className = "chat-message user";
   messageDiv.id = messageId;
-  messageDiv.innerHTML = `<img src="assets/loader_typing.gif" class="loader" alt="Cargando...">`;
+  messageDiv.innerHTML = `<video src="assets/loader_typing.mp4" class="loader" alt="Cargando..." loop autoplay muted playsinline >`;
   chatContent.appendChild(messageDiv);
   chatContent.scrollTop = chatContent.scrollHeight;
   return messageId;
