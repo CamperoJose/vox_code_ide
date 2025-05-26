@@ -4,14 +4,12 @@
     <span class="voice-title">Control por VOZ</span>
   </div>
 
-  <!-- Área de mensajes -->
   <div class="chat-content" id="chatContent">
     <div class="chat-message system neutral">
       <em>Presiona "Grabar" para iniciar una interacción.</em>
     </div>
   </div>
 
-  <!-- Botón grabar/detener -->
   <div class="voice-controls-bottom">
     <button id="voice-record">Grabar</button>
   </div>
@@ -57,13 +55,13 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 18px;
   border-radius: 4px;
 }
 
 .chat-message {
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
   max-width: 90%;
   word-break: break-word;
   font-family: 'Segoe UI', sans-serif;
@@ -85,16 +83,53 @@
 }
 
 .chat-message.system.true {
-  background-color: #b7f5ca; /* Verde claro */
+  background-color: #b7f5ca;
 }
 
 .chat-message.system.false {
-  background-color: #f7a8a8; /* Rojo claro */
+  background-color: #f7a8a8;
 }
 
 .chat-message.system.neutral {
-  background-color: #d4d9df; /* Gris neutro */
+  background-color: #d4d9df;
   color: #333;
+}
+
+/* Picos inferiores para mensajes del usuario */
+.chat-message.user::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: -18px;
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 0 solid transparent;
+  border-left: 18px solid #ffffff;
+}
+
+/* Picos inferiores para mensajes del sistema (true, false, neutral) */
+.chat-message.system::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 0 solid transparent;
+}
+
+.chat-message.system.true::after {
+  border-right: 18px solid #b7f5ca;
+}
+
+.chat-message.system.false::after {
+  border-right: 18px solid #f7a8a8;
+}
+
+.chat-message.system.neutral::after {
+  border-right: 18px solid #d4d9df;
 }
 
 .voice-controls-bottom {
@@ -124,8 +159,4 @@
   height: 15px;
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); color: #62dafb; }
-  50%      { transform: scale(1.1); color: #4bc0eb; }
-}
 </style>
