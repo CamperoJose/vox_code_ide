@@ -194,6 +194,21 @@
 .toast.error {
   background-color: rgba(200,60,60,0.9);
 }
+#voicePanelContainer {
+  /* Agrega explícitamente esta regla */
+  height: 93vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#voicePanel {
+  flex: 1;                     /* Ocupar todo el espacio disponible */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
   </style>
 </head>
 <body>

@@ -341,6 +341,11 @@ function initializeVoicePanel() {
           showToast("Error al consultar ChatGPT", false);
         }
 
+        let status = false;
+        if (match === true && allParams === true){
+          status = true;
+        }
+
         switch (functionKeyGot) {
           case "#TERMINAL_EMPTY_ENTER":
             sendEnterToTerminal();
@@ -533,8 +538,12 @@ function initializeVoicePanel() {
             break;
         }
 
+        
 
-      addChatMessage(summaryResponse, "system");
+
+
+
+      addChatMessage(summaryResponse, "system", status);
               
       recordBtn.textContent = "Grabar";
 
@@ -576,7 +585,7 @@ function updateUserMessage(id, text) {
 }
 
 // Agregar mensajes del sistema o usuario al chat directamente
-function addChatMessage(text, sender) {
+function addChatMessage(text, sender, status) {
   const chatContent = document.getElementById("chatContent");
   const messageDiv = document.createElement("div");
   messageDiv.className = `chat-message ${sender}`;

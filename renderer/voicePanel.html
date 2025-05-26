@@ -20,16 +20,18 @@
 </div>
 
 <style>
+
+  
 .voice-panel {
   width: 260px;
-  max-height: 100vh; /* Altura máxima de la pantalla visible */
+  height: 100vh; /* altura fija respecto a la pantalla */
   background: linear-gradient(145deg, #2c2f33, #23252a);
   border-left: 2px solid #3a3f4b;
   display: flex;
   flex-direction: column;
   padding: 16px;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
+  overflow: hidden; /* evita desbordamiento general */
 }
 
 .voice-header {
@@ -52,6 +54,7 @@
   color: #f0f0f0;
 }
 
+/* Esta regla garantiza que el área de mensajes siempre tenga scroll */
 .chat-content {
   flex: 1;
   overflow-y: auto;
@@ -62,6 +65,8 @@
   flex-direction: column;
   gap: 8px;
   border: 1px solid #3a3f4b;
+  margin-bottom: 8px;
+  min-height: 0; /* asegura que flex funcione correctamente */
 }
 
 .chat-message {
@@ -83,10 +88,12 @@
   color: #fff;
 }
 
+/* Se asegura que el botón siempre esté abajo y visible */
 .voice-controls-bottom {
-  padding-top: 8px;
+  flex-shrink: 0; /* evita que se comprima el botón */
   display: flex;
   justify-content: center;
+  padding-top: 8px;
 }
 
 .voice-controls-bottom button {
