@@ -305,6 +305,7 @@ function initializeVoicePanel() {
         let outParamsGot = [];
 
         let status = false;
+        const sysLoaderId = addSystemMessageLoading();
 
         try {
           const res = await fetch("http://localhost:8080/chat", {
@@ -538,7 +539,7 @@ function initializeVoicePanel() {
             break;
         }
 
-        addChatMessage(summaryResponse, "system", status);
+        updateSystemMessage(sysLoaderId, summaryResponse, true);
 
         recordBtn.textContent = "Grabar";
       });
@@ -555,8 +556,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeVoicePanel === "function") initializeVoicePanel();
 });
 
-// Función para agregar mensajes al chat
-// Agregar mensaje con loader al chat
 function addUserMessageLoading() {
   const chatContent = document.getElementById("chatContent");
   const messageDiv = document.createElement("div");
@@ -578,23 +577,52 @@ function updateUserMessage(id, text) {
 }
 
 // Agregar mensajes del sistema o usuario al chat directamente
-function addChatMessage(text, sender, status = null) {
+/**
+ * Inserta un loader de sistema y devuelve su id para luego actualizarlo.
+ * @returns {string} id del div que contiene el loader
+ */
+function addSystemMessageLoading() {
   const chatContent = document.getElementById("chatContent");
   const messageDiv = document.createElement("div");
-
-  messageDiv.classList.add('chat-message', sender);
-
-  if (sender === 'system') {
-    if (status === true) {
-      messageDiv.classList.add('true');
-    } else if (status === false) {
-      messageDiv.classList.add('false');
-    } else {
-      messageDiv.classList.add('neutral');
-    }
-  }
-
-  messageDiv.textContent = text;
+  const messageId = `sys-msg-${Date.now()}`;
+  messageDiv.className = "chat-message system neutral";
+  messageDiv.id = messageId;
+  messageDiv.innerHTML = `
+    <video 
+      src="assets/loader_typing.mp4" 
+      class="loader" 
+      loop 
+      autoplay 
+      muted 
+      playsinline>
+    </video>
+  `;
   chatContent.appendChild(messageDiv);
+  chatContent.scrollTop = chatContent.scrollHeight;
+  return messageId;
+}
+
+/**
+ * Sustituye el loader por el mensaje final y le aplica status.
+ * @param {string} id – id devuelto por addSystemMessageLoading
+ * @param {string} text – texto a mostrar
+ * @param {boolean|null} status – true: éxito (verde), false: error (rojo), null: neutral (gris)
+ */
+function updateSystemMessage(id, text, status = null) {
+  const messageDiv = document.getElementById(id);
+  if (!messageDiv) return;
+  // Limpiamos contenido (loader)
+  messageDiv.innerHTML = text;
+  // Ajustamos clases de color
+  messageDiv.classList.remove("true","false","neutral");
+  if (status === true) {
+    messageDiv.classList.add("true");
+  } else if (status === false) {
+    messageDiv.classList.add("false");
+  } else {
+    messageDiv.classList.add("neutral");
+  }
+  // Scroll automático
+  const chatContent = document.getElementById("chatContent");
   chatContent.scrollTop = chatContent.scrollHeight;
 }
