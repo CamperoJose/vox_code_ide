@@ -31,7 +31,7 @@ function setupIpcHandlers(ipcMain, dialog, store, ptyProcess) {
   ipcMain.handle('file:save', (_, filePath, content) => saveFile(filePath, content));
   ipcMain.handle('get:lastProjectPath', () => store.get('lastProjectPath'));
   ipcMain.handle('prompt:show', (_, message) => prompt({
-    title: 'CyberNeon IDE',
+    title: 'VoxCode IDE',
     label: message,
     inputAttrs: { type: 'text' },
     type: 'input'

@@ -305,6 +305,7 @@ function initializeVoicePanel() {
         let outParamsGot = [];
 
         let status = false;
+
         const sysLoaderId = addSystemMessageLoading();
 
         try {
@@ -539,7 +540,7 @@ function initializeVoicePanel() {
             break;
         }
 
-        updateSystemMessage(sysLoaderId, summaryResponse, true);
+        updateSystemMessage(sysLoaderId, summaryResponse, status);
 
         recordBtn.textContent = "Grabar";
       });
@@ -556,51 +557,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof initializeVoicePanel === "function") initializeVoicePanel();
 });
 
-function addUserMessageLoading() {
-  const chatContent = document.getElementById("chatContent");
-  const messageDiv = document.createElement("div");
-  const messageId = `msg-${Date.now()}`;
-  messageDiv.className = "chat-message user";
-  messageDiv.id = messageId;
-  messageDiv.innerHTML = `<video src="assets/loader_typing.mp4" class="loader" alt="Cargando..." loop autoplay muted playsinline >`;
-  chatContent.appendChild(messageDiv);
-  chatContent.scrollTop = chatContent.scrollHeight;
-  return messageId;
-}
+
 
 // Reemplazar loader con el mensaje transcrito
-function updateUserMessage(id, text) {
-  const messageDiv = document.getElementById(id);
-  if (messageDiv) {
-    messageDiv.textContent = text;
-  }
-}
+
 
 // Agregar mensajes del sistema o usuario al chat directamente
 /**
  * Inserta un loader de sistema y devuelve su id para luego actualizarlo.
  * @returns {string} id del div que contiene el loader
  */
-function addSystemMessageLoading() {
-  const chatContent = document.getElementById("chatContent");
-  const messageDiv = document.createElement("div");
-  const messageId = `sys-msg-${Date.now()}`;
-  messageDiv.className = "chat-message system neutral";
-  messageDiv.id = messageId;
-  messageDiv.innerHTML = `
-    <video 
-      src="assets/loader_typing.mp4" 
-      class="loader" 
-      loop 
-      autoplay 
-      muted 
-      playsinline>
-    </video>
-  `;
-  chatContent.appendChild(messageDiv);
-  chatContent.scrollTop = chatContent.scrollHeight;
-  return messageId;
-}
+
 
 /**
  * Sustituye el loader por el mensaje final y le aplica status.
@@ -608,21 +575,67 @@ function addSystemMessageLoading() {
  * @param {string} text – texto a mostrar
  * @param {boolean|null} status – true: éxito (verde), false: error (rojo), null: neutral (gris)
  */
+
+
+
+function getFormattedTimestamp() {
+  const now = new Date();
+  return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function addUserMessageLoading() {
+  const chatContent = document.getElementById("chatContent");
+  const messageDiv = document.createElement("div");
+  const messageId = `msg-${Date.now()}`;
+  messageDiv.className = "chat-message user";
+  messageDiv.id = messageId;
+  messageDiv.innerHTML = `
+    <video src="assets/loader_typing.mp4" class="loader" loop autoplay muted playsinline></video>
+  `;
+  chatContent.appendChild(messageDiv);
+  chatContent.scrollTop = chatContent.scrollHeight;
+  return messageId;
+}
+
+function updateUserMessage(id, text) {
+  const messageDiv = document.getElementById(id);
+  if (messageDiv) {
+    messageDiv.innerHTML = `
+      <span>${text}</span>
+      <span class="chat-timestamp">${getFormattedTimestamp()}</span>
+    `;
+  }
+}
+
+function addSystemMessageLoading() {
+  const chatContent = document.getElementById("chatContent");
+  const messageDiv = document.createElement("div");
+  const messageId = `sys-msg-${Date.now()}`;
+  messageDiv.className = "chat-message system neutral";
+  messageDiv.id = messageId;
+  messageDiv.innerHTML = `
+    <video src="assets/loader_typing.mp4" class="loader" loop autoplay muted playsinline></video>
+  `;
+  chatContent.appendChild(messageDiv);
+  chatContent.scrollTop = chatContent.scrollHeight;
+  return messageId;
+}
+
 function updateSystemMessage(id, text, status = null) {
   const messageDiv = document.getElementById(id);
   if (!messageDiv) return;
-  // Limpiamos contenido (loader)
-  messageDiv.innerHTML = text;
-  // Ajustamos clases de color
-  messageDiv.classList.remove("true","false","neutral");
-  if (status === true) {
-    messageDiv.classList.add("true");
-  } else if (status === false) {
-    messageDiv.classList.add("false");
-  } else {
-    messageDiv.classList.add("neutral");
-  }
-  // Scroll automático
+
+  messageDiv.classList.remove("true", "false", "neutral");
+  const statusClass = status === true ? "true" : status === false ? "false" : "neutral";
+  messageDiv.classList.add(statusClass);
+
+  messageDiv.innerHTML = `
+    <span>${text}</span>
+    <span class="chat-timestamp">${getFormattedTimestamp()}</span>
+  `;
+
+  console.log(`[Chat] Mensaje actualizado: ${text} (status: ${statusClass})`);
+
   const chatContent = document.getElementById("chatContent");
   chatContent.scrollTop = chatContent.scrollHeight;
 }

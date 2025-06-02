@@ -37,7 +37,7 @@ if (!container) {
 
 // Crear la instancia de Monaco Editor
 export const editor = monaco.editor.create(container, {
-  value: '// 🚀 CyberNeon IDE 🚀\n\n// Abre un archivo para empezar a programar...',
+  value: '// 🚀 VoxCode IDE 🚀\n\n// Abre un archivo para empezar a programar...',
   language: 'javascript',
   theme: 'cyberNeon',
   automaticLayout: true,
