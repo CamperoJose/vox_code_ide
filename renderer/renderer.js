@@ -6,6 +6,7 @@ import {
   createNewFileInRoot,
   createNewDirInRoot,
 } from "./fileManager/fileManager.js";
+import { callChatApi } from "./chatService.js";
 function showToast(message, success = true) {
   const container = document.getElementById("toast-container");
   if (!container) return;
@@ -309,13 +310,6 @@ function initializeVoicePanel() {
         const sysLoaderId = addSystemMessageLoading();
 
         try {
-          const res = await fetch("http://localhost:8080/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: transcription }),
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
           const {
             match,
             allParams,
@@ -323,7 +317,7 @@ function initializeVoicePanel() {
             groupKey,
             outParams,
             summary,
-          } = await res.json();
+          } = await callChatApi(transcription);
 
           console.log("--- ChatGPT Response ---");
           console.log({
