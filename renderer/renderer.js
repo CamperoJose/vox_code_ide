@@ -191,6 +191,8 @@ function initializeVoicePanel() {
 
       console.log("[Voice] MediaRecorder mimeType:", mediaRecorder.mimeType);
       mediaRecorder.start();
+      recordBtn.classList.add("recording");
+      document.getElementById("voicePanel").classList.add("recording");
       recordBtn.textContent = "Detener";
 
       mediaRecorder.addEventListener("dataavailable", (e) => {
@@ -444,6 +446,8 @@ function initializeVoicePanel() {
         updateSystemMessage(sysLoaderId, summaryResponse, status);
 
         recordBtn.textContent = "Grabar";
+        recordBtn.classList.remove("recording");
+        document.getElementById("voicePanel").classList.remove("recording");
       });
     } else {
       console.log("[Voice] stopping22");
