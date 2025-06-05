@@ -28,15 +28,6 @@ function sendCommandToTerminal(command) {
   window.electronAPI.sendToTerminal(`${command}\r`);
 }
 
-// function initTerminalControls() {
-//   document
-//     .getElementById("insert-enter")
-//     .addEventListener("click", sendEnterToTerminal);
-//   document
-//     .getElementById("show-path")
-//     .addEventListener("click", sendCommandToTerminal);
-// }
-
 async function setCursorLine(lineStr) {
   const line = parseInt(lineStr, 10);
   if (!isNaN(line) && line >= 1) {
@@ -92,34 +83,9 @@ async function deleteLine(lineStr) {
   }
 }
 
-// function initEditorControls() {
-//   document
-//     .getElementById("btn-set-cursor")
-//     .addEventListener("click", setCursorLine);
-//   document
-//     .getElementById("btn-select-line")
-//     .addEventListener("click", selectLine);
-//   document
-//     .getElementById("btn-select-range")
-//     .addEventListener("click", selectRange);
-//   document
-//     .getElementById("btn-insert-frag")
-//     .addEventListener("click", insertSnippet);
-//   document
-//     .getElementById("btn-delete-line")
-//     .addEventListener("click", deleteLine);
-// }
 
-function openProject() {
-  document.getElementById("open-folder").click();
-}
-
-function refreshTree() {
-  document.getElementById("open-folder").click();
-}
-
-function isVisible(li) {
-  let el = li;
+function isVisible(item) {
+  let el = item;
   while (el && el.id !== "file-tree") {
     if (el.tagName === "UL" && el.classList.contains("collapsed")) return false;
     el = el.parentElement;
@@ -130,12 +96,12 @@ function isVisible(li) {
 function openFolderByName(name) {
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll("li.folder")).filter(
-    (li) => {
-      const text = li
+    (candidate) => {
+      const text = candidate
         .querySelector(".file-name")
         .textContent.trim()
         .toLowerCase();
-      return text === name && isVisible(li);
+      return text === name && isVisible(candidate);
     }
   );
   if (candidates.length) {
@@ -149,8 +115,8 @@ function openFolderByName(name) {
 function openFileByName(name) {
   name = name.trim().toLowerCase();
   const candidates = Array.from(document.querySelectorAll("li.file")).filter(
-    (li) => {
-      let text = li
+    (candidate) => {
+      let text = candidate
         .querySelector(".file-name")
         .textContent.trim()
         .toLowerCase();
@@ -158,9 +124,9 @@ function openFileByName(name) {
         const base = text.includes(".")
           ? text.slice(0, text.lastIndexOf("."))
           : text;
-        return base === name && isVisible(li);
+        return base === name && isVisible(candidate);
       }
-      return text === name && isVisible(li);
+      return text === name && isVisible(candidate);
     }
   );
   if (candidates.length) {
@@ -199,51 +165,7 @@ function normalize(text) {
 }
 
 function initializeVoicePanel() {
-  // document
-  //   .getElementById("voice-open-project")
-  //   .addEventListener("click", openProject);
-  // document
-  //   .getElementById("voice-refresh-tree")
-  //   .addEventListener("click", refreshTree);
-  // document
-  //   .getElementById("voice-new-file")
-  //   .addEventListener("click", () =>
-  //     document.getElementById("new-file").click()
-  //   );
-  // document
-  //   .getElementById("voice-new-dir")
-  //   .addEventListener("click", () =>
-  //     document.getElementById("new-dir").click()
-  //   );
-  // document
-  //   .getElementById("voice-open-folder")
-  //   .addEventListener("click", async () => {
-  //     const name = await window.electronAPI.showPrompt(
-  //       "Nombre de la carpeta a abrir:"
-  //     );
-  //     if (!name) return;
-  //     const ok = openFolderByName(name);
-  //     showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-  //   });
-  // document
-  //   .getElementById("voice-open-file")
-  //   .addEventListener("click", async () => {
-  //     const name = await window.electronAPI.showPrompt(
-  //       "Nombre del archivo a abrir:"
-  //     );
-  //     if (!name) return;
-  //     const ok = openFileByName(name);
-  //     showToast(ok ? `Se abrió “${name}”` : `No se encontró “${name}”`, ok);
-  //   });
-  // document
-  //   .getElementById("voice-new-file-in")
-  //   .addEventListener("click", createFileInFolder);
-  // document
-  //   .getElementById("voice-new-dir-in")
-  //   .addEventListener("click", createDirInFolder);
-
   const recordBtn = document.getElementById("voice-record");
-  const transcriptDiv = document.getElementById("voice-transcript");
   const playback = document.getElementById("voice-playback");
   let mediaRecorder,
     audioChunks = [];
@@ -286,8 +208,6 @@ function initializeVoicePanel() {
         console.log("[Voice] stop – chunks:", audioChunks.length);
         const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
         console.log("[Voice] Blob – size:", blob.size, "type:", blob.type);
-
-        const url = URL.createObjectURL(blob);
 
         try {
           await playback.play();
@@ -361,19 +281,6 @@ function initializeVoicePanel() {
             break;
 
           case "#MOVE_CURSOR_TO_LINE":
-            {
-              const param = outParamsGot.find(
-                (p) => p.paramKey === "#LINE_NUMBER"
-              );
-              if (param && param.value) {
-                setCursorLine(param.value);
-              } else {
-                console.warn("No se encontró parámetros completos");
-              }
-            }
-            break;
-
-          case "#SELECT_LINE":
             {
               const param = outParamsGot.find(
                 (p) => p.paramKey === "#LINE_NUMBER"
@@ -546,17 +453,12 @@ function initializeVoicePanel() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // initTerminalControls();
-  // initEditorControls();
   if (typeof initializeVoicePanel === "function") initializeVoicePanel();
 });
 
 
 
-// Reemplazar loader con el mensaje transcrito
-
-
-// Agregar mensajes del sistema o usuario al chat directamente
+// Utilidades para manejar los mensajes en el panel de voz
 /**
  * Inserta un loader de sistema y devuelve su id para luego actualizarlo.
  * @returns {string} id del div que contiene el loader

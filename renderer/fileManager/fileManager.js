@@ -2,7 +2,6 @@ import * as monaco from "https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/+esm"
 import { editor, setCurrentFilePath } from "../editor/editor.js";
 
 let selectedDirPath = null;
-const baseDir = selectedDirPath;
 const expandedPaths = new Set();
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -133,9 +132,9 @@ function compressTree(nodes) {
 
 function renderFileTree(files, parent) {
   files.forEach((file) => {
-    const li = document.createElement("li");
-    li.classList.add(file.isDirectory ? "folder" : "file");
-    li.dataset.path = file.path;
+    const listItem = document.createElement("li");
+    listItem.classList.add(file.isDirectory ? "folder" : "file");
+    listItem.dataset.path = file.path;
 
     const arrow = document.createElement("span");
     arrow.textContent = file.isDirectory ? "▸" : "";
@@ -149,7 +148,7 @@ function renderFileTree(files, parent) {
     nameSpan.textContent = file.name;
     nameSpan.classList.add("file-name");
 
-    li.append(arrow, icon, nameSpan);
+    listItem.append(arrow, icon, nameSpan);
 
     if (file.isDirectory && file.path === selectedDirPath) {
       const indicator = document.createElement("span");
@@ -158,7 +157,7 @@ function renderFileTree(files, parent) {
       nameSpan.appendChild(indicator);
     }
 
-    parent.appendChild(li);
+    parent.appendChild(listItem);
 
     if (file.isDirectory) {
       const nestedUl = document.createElement("ul");
@@ -172,7 +171,7 @@ function renderFileTree(files, parent) {
         arrow.textContent = "▾";
       }
 
-      li.onclick = (e) => {
+      listItem.onclick = (e) => {
         e.stopPropagation();
 
         const nowCollapsed = nestedUl.classList.toggle("collapsed");
@@ -194,7 +193,7 @@ function renderFileTree(files, parent) {
 
       renderFileTree(file.children, nestedUl);
     } else {
-      li.onclick = async (e) => {
+      listItem.onclick = async (e) => {
         e.stopPropagation();
 
         const parts = file.path.split("/");
@@ -217,7 +216,7 @@ function renderFileTree(files, parent) {
         document
           .querySelectorAll(".sidebar li")
           .forEach((el) => el.classList.remove("active"));
-        li.classList.add("active");
+        listItem.classList.add("active");
 
         const content = await window.electronAPI.openFile(file.path);
         const language = detectLanguage(file.name);
