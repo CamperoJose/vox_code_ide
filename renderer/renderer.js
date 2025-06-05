@@ -168,7 +168,8 @@ function initializeVoicePanel() {
   const recordBtn = document.getElementById("voice-record");
   const playback = document.getElementById("voice-playback");
   let mediaRecorder,
-    audioChunks = [];
+    audioChunks = [],
+    currentStream = null;
 
   recordBtn.addEventListener("click", async () => {
     console.log("[Voice] click en botón:", recordBtn.textContent);
@@ -176,6 +177,7 @@ function initializeVoicePanel() {
     if (recordBtn.textContent === "Grabar") {
       audioChunks = [];
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      currentStream = stream;
 
       const desiredMime = MediaRecorder.isTypeSupported(
         "audio/webm;codecs=opus"
@@ -212,8 +214,11 @@ function initializeVoicePanel() {
         console.log("[Voice] Blob – size:", blob.size, "type:", blob.type);
 
         try {
-          await playback.play();
-          console.log("[Voice] playing audio");
+          if (playback) {
+            playback.src = URL.createObjectURL(blob);
+            await playback.play();
+            console.log("[Voice] playing audio");
+          }
         } catch {}
 
         const arrayBuffer = await blob.arrayBuffer();
@@ -444,6 +449,11 @@ function initializeVoicePanel() {
         }
 
         updateSystemMessage(sysLoaderId, summaryResponse, status);
+
+        if (currentStream) {
+          currentStream.getTracks().forEach((t) => t.stop());
+          currentStream = null;
+        }
 
         recordBtn.textContent = "Grabar";
         recordBtn.classList.remove("recording");
