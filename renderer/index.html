@@ -11,6 +11,7 @@
   <header class="app-header">
     <img src="../icon.png" alt="VoxCode Logo" class="app-icon">
     <h1 class="app-title">VoxCode</h1>
+    <button id="theme-toggle" class="theme-toggle-btn">🌙</button>
   </header>
   <div id="toast-container"></div>
   <div class="container">
@@ -156,6 +157,27 @@ fetch('voicePanel.html')
   })
   .catch(err => console.error('Error cargando panel de voz:', err));
 </script>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        body.classList.add('light-mode');
+        themeToggle.textContent = '🌙';
+      } else {
+        body.classList.remove('light-mode');
+        themeToggle.textContent = '☀️';
+      }
+    }
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+    themeToggle.addEventListener('click', () => {
+      const newTheme = body.classList.contains('light-mode') ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+      applyTheme(newTheme);
+    });
+  </script>
 
 </body>
 </html>

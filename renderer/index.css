@@ -1,3 +1,19 @@
+:root {
+  --header-bg: linear-gradient(90deg, #23252d, #1f2128);
+  --central-bg: #1a1c21;
+  --divider-bg: #202228;
+  --voice-panel-bg: #2c2f36;
+  --voice-content-bg: #1d2026;
+}
+
+.light-mode {
+  --header-bg: linear-gradient(90deg, #f5f5f5, #e0e0e0);
+  --central-bg: #ffffff;
+  --divider-bg: #dcdcdc;
+  --voice-panel-bg: #f1f1f1;
+  --voice-content-bg: #ffffff;
+}
+
     /* Reset básico */
     html, body {
       height: 100%;
@@ -14,7 +30,7 @@
     /* Sidebar */
     .sidebar {
       width: 280px;
-      background-color: #1f2128;
+      background-color: var(--sidebar-bg);
       display: flex;
       flex-direction: column;
       padding: 10px;
@@ -56,7 +72,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background-color: #1a1c21;
+      background-color: var(--central-bg);
       position: relative;
     }
     /* Editor de código: se usa el contenedor editorContainer */
@@ -65,12 +81,12 @@
       overflow: auto;
       padding: 10px;
       box-sizing: border-box;
-      background-color: #1a1c21;
+      background-color: var(--central-bg);
     }
     /* Divisor horizontal: fijo, con botón de toggle */
     .horizontal-divider {
       height: 5px;
-      background-color: #202228;
+      background-color: var(--divider-bg);
       position: relative;
       display: flex;
       align-items: center;
@@ -95,7 +111,7 @@
     /* Panel derecho: Voz */
     .voice-panel {
       width: 250px;
-      background-color: #2c2f36;
+      background-color: var(--voice-panel-bg);
       color: #f0f0f0;
       padding: 10px;
       box-sizing: border-box;
@@ -121,13 +137,13 @@
       border: 1px solid #555;
       border-radius: 4px;
       padding: 8px;
-      background-color: #1d2026;
+      background-color: var(--voice-content-bg);
     }
     .app-header {
     display: flex;
     align-items: center;
     padding: 8px 16px;
-      background: linear-gradient(90deg, #23252d, #1f2128); /* tono acorde al nuevo esquema */
+      background: var(--header-bg);
   }
 
   .app-icon {
@@ -141,6 +157,15 @@
     color: #FFF;
     font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  #theme-toggle {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
   }
   #terminal-toggle-float {
   position: absolute;

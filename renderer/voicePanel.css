@@ -1,3 +1,15 @@
+:root {
+  --voice-panel-gradient: linear-gradient(145deg, rgba(50, 52, 58, 0.95), rgba(28, 30, 36, 0.95));
+  --voice-border-color: #353a45;
+  --voice-header-bg: rgba(255, 255, 255, 0.05);
+}
+
+.light-mode {
+  --voice-panel-gradient: linear-gradient(145deg, rgba(240,240,240,0.95), rgba(220,220,220,0.95));
+  --voice-border-color: #cccccc;
+  --voice-header-bg: rgba(0,0,0,0.05);
+}
+
 @keyframes icon-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
@@ -16,8 +28,8 @@
 .voice-panel {
   width: 260px;
   height: 100vh;
-  background: linear-gradient(145deg, rgba(50, 52, 58, 0.95), rgba(28, 30, 36, 0.95));
-  border-left: 2px solid #353a45;
+  background: var(--voice-panel-gradient, linear-gradient(145deg, rgba(50, 52, 58, 0.95), rgba(28, 30, 36, 0.95)));
+  border-left: 2px solid var(--voice-border-color, #353a45);
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -37,8 +49,8 @@
   gap: 8px;
   margin-bottom: 8px;
   padding: 8px;
-  border-bottom: 1px solid #3a3f4b;
-  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--voice-border-color, #3a3f4b);
+  background: var(--voice-header-bg, rgba(255, 255, 255, 0.05));
   border-radius: 8px;
 }
 
