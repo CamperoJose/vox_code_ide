@@ -48,10 +48,7 @@ function setupIpcHandlers(ipcMain, dialog, store, ptyProcess) {
         sampleRateHertz: 48000,
         languageCode: 'es-ES',
         alternativeLanguageCodes: ['en-US'],
-        enableAutomaticPunctuation: true,
-        model: 'latest_long',
         useEnhanced: true,
-        speechContexts: [{ phrases: ['abrir terminal', 'ejecutar build'] }]
       }
     };
 
