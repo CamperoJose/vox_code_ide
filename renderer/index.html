@@ -129,12 +129,14 @@
     const terminalArea = document.getElementById('terminal-area');
     const terminalView = document.getElementById('terminalView');
     let terminalVisible = true;
-  
+    floatBtn.style.bottom = '60px';
+
     floatBtn.addEventListener('click', () => {
       terminalVisible = !terminalVisible;
       terminalArea.style.display = terminalVisible ? 'flex' : 'none';
       // Cambiamos flecha del botón
       floatBtn.textContent = terminalVisible ? '▼' : '▲';
+      floatBtn.style.bottom = terminalVisible ? '60px' : '16px';
       // Si vuelve a mostrarse, recalibrar terminal
       if (terminalVisible) {
         terminalView.executeJavaScript(`
