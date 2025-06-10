@@ -1,5 +1,6 @@
 :root {
   --header-bg: linear-gradient(90deg, #23252d, #1f2128);
+  --header-text-color: #ffffff;
   --central-bg: #1a1c21;
   --divider-bg: #202228;
   --voice-panel-bg: #2c2f36;
@@ -8,6 +9,7 @@
 
 .light-mode {
   --header-bg: linear-gradient(90deg, #f5f5f5, #e0e0e0);
+  --header-text-color: #111111;
   --central-bg: #ffffff;
   --divider-bg: #dcdcdc;
   --voice-panel-bg: #f1f1f1;
@@ -139,11 +141,12 @@
       padding: 8px;
       background-color: var(--voice-content-bg);
     }
-    .app-header {
+.app-header {
     display: flex;
     align-items: center;
     padding: 8px 16px;
-      background: var(--header-bg);
+    background: var(--header-bg);
+    color: var(--header-text-color);
   }
 
   .app-icon {
@@ -163,7 +166,8 @@
     margin-left: auto;
     background: none;
     border: none;
-    color: inherit;
+    padding: 4px;
+    color: var(--header-text-color);
     font-size: 1.2rem;
     cursor: pointer;
   }
