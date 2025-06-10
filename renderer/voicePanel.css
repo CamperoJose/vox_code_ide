@@ -207,6 +207,27 @@
   margin: 0 auto;
 }
 
+.siri-loader {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, #4ac0eb, transparent 60%),
+    radial-gradient(circle at 70% 30%, #8e56ff, transparent 60%),
+    radial-gradient(circle at 50% 70%, #ff5f6d, transparent 60%);
+  animation: siri-rotate 1.6s linear infinite, siri-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes siri-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes siri-pulse {
+  0%, 100% { transform: scale(0.9); }
+  50% { transform: scale(1.1); }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

@@ -524,7 +524,7 @@ function addSystemMessageLoading() {
   messageDiv.className = "chat-message system neutral";
   messageDiv.id = messageId;
   messageDiv.innerHTML = `
-    <div class="loader-spinner"></div>
+    <div class="siri-loader"></div>
   `;
   chatContent.appendChild(messageDiv);
   chatContent.scrollTop = chatContent.scrollHeight;
