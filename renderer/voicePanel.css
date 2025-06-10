@@ -164,7 +164,9 @@
   cursor: pointer;
   color: #ffffff;
   font-weight: bold;
+  position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .voice-controls-bottom button:hover {
@@ -178,9 +180,48 @@
   box-shadow: 0 0 10px rgba(233, 95, 95, 0.7);
 }
 
+.voice-controls-bottom button.recording::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(233, 95, 95, 0.6);
+  animation: pulse-ring 1.2s infinite ease-out;
+}
+
 .loader {
   width: 40px;
   height: 15px;
+}
+
+.loader-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #4ac0eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .chat-message {

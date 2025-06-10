@@ -524,7 +524,7 @@ function addSystemMessageLoading() {
   messageDiv.className = "chat-message system neutral";
   messageDiv.id = messageId;
   messageDiv.innerHTML = `
-    <video src="assets/loader_typing.mp4" class="loader" loop autoplay muted playsinline></video>
+    <div class="loader-spinner"></div>
   `;
   chatContent.appendChild(messageDiv);
   chatContent.scrollTop = chatContent.scrollHeight;
