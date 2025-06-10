@@ -16,8 +16,8 @@
 .voice-panel {
   width: 260px;
   height: 100vh;
-  background: linear-gradient(145deg, rgba(44, 47, 51, 0.95), rgba(35, 37, 42, 0.95));
-  border-left: 2px solid #3a3f4b;
+  background: linear-gradient(145deg, rgba(50, 52, 58, 0.95), rgba(28, 30, 36, 0.95));
+  border-left: 2px solid #353a45;
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -28,7 +28,7 @@
 }
 
 .voice-panel.recording {
-  box-shadow: 0 0 8px #e95f5f, inset 0 0 10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 8px #ff4b6e, inset 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
 .voice-header {
@@ -44,7 +44,7 @@
 
 .voice-icon {
   font-size: 1.8rem;
-  color: #4ac0eb;
+  color: #ff79c6;
   animation: icon-pulse 2s infinite ease-in-out;
 }
 
@@ -63,7 +63,7 @@
   gap: 18px;
   border-radius: 4px;
   scrollbar-width: thin;
-  scrollbar-color: #4ac0eb transparent;
+  scrollbar-color: #9b59b6 transparent;
 }
 
 .chat-content::-webkit-scrollbar {
@@ -71,7 +71,7 @@
 }
 
 .chat-content::-webkit-scrollbar-thumb {
-  background-color: #4ac0eb;
+  background-color: #9b59b6;
   border-radius: 3px;
 }
 
@@ -158,7 +158,7 @@
 .voice-controls-bottom button {
   width: 60px;
   height: 60px;
-  background: radial-gradient(circle at top left, #4ac0eb, #2877b8);
+  background: radial-gradient(circle at top left, #8e2de2, #4a00e0);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -171,13 +171,13 @@
 
 .voice-controls-bottom button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 8px rgba(52, 173, 235, 0.6);
+  box-shadow: 0 0 8px rgba(142, 45, 226, 0.6);
 }
 
 .voice-controls-bottom button.recording {
-  background: radial-gradient(circle at top left, #e95f5f, #b42d2d);
+  background: radial-gradient(circle at top left, #ff4b6e, #b42d2d);
   animation: pulse-record 1s infinite;
-  box-shadow: 0 0 10px rgba(233, 95, 95, 0.7);
+  box-shadow: 0 0 10px rgba(255, 75, 110, 0.7);
 }
 
 .voice-controls-bottom button.recording::after {
@@ -188,7 +188,7 @@
   right: -6px;
   bottom: -6px;
   border-radius: 50%;
-  border: 2px solid rgba(233, 95, 95, 0.6);
+  border: 2px solid rgba(255, 75, 110, 0.6);
   animation: pulse-ring 1.2s infinite ease-out;
 }
 
@@ -201,7 +201,7 @@
   width: 24px;
   height: 24px;
   border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #4ac0eb;
+  border-top-color: #9b59b6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
@@ -213,9 +213,9 @@
   margin: 0 auto;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 30% 30%, #4ac0eb, transparent 60%),
-    radial-gradient(circle at 70% 30%, #8e56ff, transparent 60%),
-    radial-gradient(circle at 50% 70%, #ff5f6d, transparent 60%);
+    radial-gradient(circle at 30% 30%, #8e2de2, transparent 60%),
+    radial-gradient(circle at 70% 30%, #ff4b6e, transparent 60%),
+    radial-gradient(circle at 50% 70%, #4a00e0, transparent 60%);
   animation: siri-rotate 1.6s linear infinite, siri-pulse 1.6s ease-in-out infinite;
 }
 
