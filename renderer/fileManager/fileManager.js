@@ -131,7 +131,7 @@ function compressTree(nodes) {
 }
 
 function getIconHTML(file) {
-  if (file.isDirectory) return "🗂️";
+  if (file.isDirectory) return '<img src="icons/folder.svg" alt="folder" />';
   const ext = file.name.split(".").pop().toLowerCase();
   const map = {
     js: "icons/javascript.svg",
@@ -150,7 +150,7 @@ function getIconHTML(file) {
     php: "icons/php.svg",
   };
   const iconPath = map[ext] || "icons/file.svg";
-  return `<img src="${iconPath}" alt="${ext}" />`;
+  return `<img src="${iconPath}" alt="${ext || 'file'}" />`;
 }
 
 function renderFileTree(files, parent) {
