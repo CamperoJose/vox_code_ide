@@ -130,6 +130,29 @@ function compressTree(nodes) {
   });
 }
 
+function getIconHTML(file) {
+  if (file.isDirectory) return '<img src="icons/folder.svg" alt="folder" />';
+  const ext = file.name.split(".").pop().toLowerCase();
+  const map = {
+    js: "icons/javascript.svg",
+    py: "icons/python.svg",
+    java: "icons/java.svg",
+    html: "icons/html.svg",
+    css: "icons/css.svg",
+    json: "icons/json.svg",
+    md: "icons/md.svg",
+    txt: "icons/txt.svg",
+    ts: "icons/ts.svg",
+    vue: "icons/vue.svg",
+    cpp: "icons/cpp.svg",
+    c: "icons/c.svg",
+    rb: "icons/ruby.svg",
+    php: "icons/php.svg",
+  };
+  const iconPath = map[ext] || "icons/file.svg";
+  return `<img src="${iconPath}" alt="${ext || 'file'}" />`;
+}
+
 function renderFileTree(files, parent) {
   files.forEach((file) => {
     const listItem = document.createElement("li");
@@ -141,7 +164,7 @@ function renderFileTree(files, parent) {
     arrow.classList.add("arrow");
 
     const icon = document.createElement("span");
-    icon.textContent = file.isDirectory ? "🗂️" : "📝";
+    icon.innerHTML = getIconHTML(file);
     icon.classList.add("icon");
 
     const nameSpan = document.createElement("span");

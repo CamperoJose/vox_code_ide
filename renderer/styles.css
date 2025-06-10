@@ -87,6 +87,12 @@ body, html {
     color: #00E5FF;
     width: 20px;
   }
+
+  .icon img {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+  }
   
   .file-name {
     padding-left: 4px;
