@@ -23,7 +23,12 @@ VOX Code IDE is my final year project for the Systems Engineering degree at UCB 
 - **File Management**: Complete file system navigation and management
 - **Chat History**: Persistent chat history for IDE interactions
 
-## 🚀 Getting Started
+### Screenshots
+<img width="1680" alt="Captura de pantalla 2025-07-06 a la(s) 5 27 29 p  m" src="https://github.com/user-attachments/assets/674a35de-5e00-406d-8735-878bca3a7a3a" />
+
+<img width="1675" alt="Captura de pantalla 2025-07-06 a la(s) 6 13 52 p  m" src="https://github.com/user-attachments/assets/ddc32624-d178-4a64-b188-56dcc27267bc" />
+
+## Getting Started
 
 ### Prerequisites
 
