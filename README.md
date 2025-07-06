@@ -1,32 +1,27 @@
 # VOX Code IDE
 
+![VoxCode (1)](https://github.com/user-attachments/assets/51be6290-5d50-48bd-8a91-c89fd2208616)
+
 A voice-controlled integrated development environment designed to help programmers with motor disabilities and limitations through natural language voice recognition and artificial intelligence.
 
-## 🎯 Project Overview
+## Project Overview
 
-VOX Code IDE is my final year project for the Systems Engineering degree at UCB (Universidad Católica Boliviana). This innovative IDE allows programmers to code through natural voice commands, eliminating the need for complex command-line instructions that are difficult to memorize. Users can simply speak their intentions in their own words, making programming more accessible to everyone.
+VOX Code IDE is my final year project for the Systems Engineering degree at UCB (Universidad Católica Boliviana). This IDE allows programmers to code through natural voice commands, eliminating the need for complex command-line instructions that are difficult to memorize. Users can simply speak their intentions in their own words, making programming more accessible to everyone.
 
-## ✨ Key Features
+## Key Features
 
-### 🎤 Voice Recognition
+### Voice Recognition
 - **Natural Language Processing**: Speak commands in your own words, not predefined syntax
 - **AI-Powered Understanding**: Advanced voice recognition with artificial intelligence
 - **Accessibility Focus**: Designed specifically for users with motor disabilities
 
-### 💻 Integrated Development Environment
+### Integrated Development Environment
 - **Cross-Platform Support**: Available for macOS, Windows, and Linux
 - **Desktop Application**: Native desktop experience with Electron
 - **Integrated Terminal**: Built-in terminal with full command-line capabilities
 - **Code Editor**: Monaco Editor with syntax highlighting and IntelliSense
 - **File Management**: Complete file system navigation and management
 - **Chat History**: Persistent chat history for IDE interactions
-
-### 🔧 Technical Features
-- **Monaco Editor**: Professional code editing experience
-- **Xterm.js Terminal**: Full-featured terminal emulation
-- **Google Cloud Speech**: High-accuracy voice recognition
-- **Electron Framework**: Cross-platform desktop application
-- **Node.js Backend**: Robust server-side processing
 
 ## 🚀 Getting Started
 
@@ -87,14 +82,14 @@ This IDE requires a backend server for voice processing and AI interactions. The
 
 Please follow the installation instructions in the backend repository to set up the required server components.
 
-### 🔐 Security Notes
+### Security Notes
 
 - The `.env` file and `credencial.json` are automatically ignored by Git
 - Never commit your actual credentials to the repository
 - Use the `.env.example` file as a template for your configuration
 - Keep your Google Cloud service account credentials secure
 
-## 🎮 Usage
+## Usage
 
 ### Voice Commands
 
