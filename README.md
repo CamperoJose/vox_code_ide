@@ -59,7 +59,22 @@ VOX Code IDE is my final year project for the Systems Engineering degree at UCB 
    npx electron-rebuild
    ```
 
-5. **Start the development server**
+5. **Configure environment variables**
+   
+   Copy the example environment file and configure your Google Cloud credentials:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file with your Google Cloud Speech API credentials:
+   ```bash
+   # Google Cloud Speech API Credentials
+   GOOGLE_APPLICATION_CREDENTIALS=./credencial.json
+   ```
+   
+   **Important**: You need to create a Google Cloud service account and download the credentials JSON file. Place it in the project root as `credencial.json`.
+
+6. **Start the development server**
    ```bash
    npm run dev
    ```
@@ -71,6 +86,13 @@ This IDE requires a backend server for voice processing and AI interactions. The
 **Backend Repository**: [https://github.com/CamperoJose/vox_code](https://github.com/CamperoJose/vox_code)
 
 Please follow the installation instructions in the backend repository to set up the required server components.
+
+### 🔐 Security Notes
+
+- The `.env` file and `credencial.json` are automatically ignored by Git
+- Never commit your actual credentials to the repository
+- Use the `.env.example` file as a template for your configuration
+- Keep your Google Cloud service account credentials secure
 
 ## 🎮 Usage
 

@@ -1,2 +1,8 @@
 package-lock.json
 node_modules
+
+# Environment variables and credentials
+.env
+credencial.json
+*.key
+*.pem
